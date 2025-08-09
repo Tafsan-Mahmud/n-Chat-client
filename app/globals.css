@@ -4,6 +4,53 @@
 .custom-scrollbar-container::-webkit-scrollbar {
    display: none;
 }
+.custom-scrollbar-userDetails::-webkit-scrollbar {
+   display: none;
+}
+.custom-scrollbar-viewMessege::-webkit-scrollbar {
+  width: 6px; /* Width of the entire scrollbar */
+}
+
+.custom-scrollbar-viewMessege::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color of the track */
+  /* border-radius: 5px; */
+}
+
+.custom-scrollbar-viewMessege::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-scrollbar-viewMessege::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color on hover */
+
+}
+
+ /* ////////////////////////////////// */
+ .custom-scrollbar-activeuser::-webkit-scrollbar {
+   display: none;
+}
+
+.custom-scrollbar-activeuser::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color on hover */
+
+}
+.custom-scrollbar-activeuser::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 5px;
+  cursor: pointer;
+}
+.custom-scrollbar-activeuser::-webkit-scrollbar-track {
+  background: none; /* Color of the track */
+  /* border-radius: 5px; */
+}
+.custom-scrollbar-activeuser::-webkit-scrollbar {
+  height: 6px; /* Width of the entire scrollbar */
+}
+
+
+
 
 
 @custom-variant dark (&:is(.dark *));

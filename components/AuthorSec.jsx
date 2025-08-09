@@ -7,18 +7,18 @@ const AuthorSec = () => {
             <div className=''>
                 <Image
                     alt='author image'
-                    width={115}
-                    height={115}
+                    width={100}
+                    height={100}
                     className='rounded-full'
                     src={'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj'} />
             </div>
             <div className='flex w-full justify-between'>
                 <div>
-                    <p className='text-2xl font-semibold text-blue-800'>Abu Hasnat Nobin</p>
-                    <p className='text-lg text-slate-600'>Senior Developer</p>
+                    <p className='text-xl font-semibold text-blue-800'>Abu Hasnat Nobin</p>
+                    <p className='text-md text-slate-600'>Senior Developer</p>
                 </div>
                 <div className='flex items-center border-l pl-2'>
-                    <Settings className='text-slate-600'/>
+                    <Settings className='text-slate-600 cursor-pointer'/>
                 </div>
             </div>
         </div>

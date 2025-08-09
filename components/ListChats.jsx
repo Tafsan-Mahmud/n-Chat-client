@@ -3,7 +3,7 @@ import Image from 'next/image';
 import AuthorSec from './AuthorSec';
 import { Input } from "@/components/ui/input"
 import { Search, Settings } from 'lucide-react';
-const demoUsers = [
+export const demoUsers = [
     {
         name: "Alice Smith",
         title: "Software Engineer",
@@ -90,32 +90,31 @@ const demoUsers = [
 
 const ListChats = () => {
     return (
-        <div className='flex-1 overflow-y-auto border-r min-h-[100vh] bg-slate-50 custom-scrollbar-container'>
+        <div className='flex-1 overflow-y-auto border-r min-h-[100vh] bg-slate-100 custom-scrollbar-container'>
             <AuthorSec />
             {/* Search Input */}
             <div className='relative mx-8'>
-                <Input className="rounded-lg h-12 pl-10 bg-white !text-[15px] text-slate-600" type="email" placeholder="search any persone" />
-                <Search className='absolute top-3 text-slate-600 left-2 h-6 w-6' />
+                <Input className="rounded-full h-12 pl-11 bg-white !text-[15px] text-slate-600" type="email" placeholder="search any persone" />
+                <Search className='absolute top-3 text-slate-600 left-3 h-6 w-6' />
             </div>
 
             {/* User List */}
 
-            <div className='mt-5 px-4'>
+            <div className='mt-5 px-4 pb-5'>
                 {
                     demoUsers.map((user, i) => {
-                        return <div key={i} className='py-4 px-4 rounded-md cursor-pointer hover:bg-slate-200 flex items-center gap-3'>
+                        return <div key={i} className='py-4 px-4 border-b rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3'>
                             <div className=''>
                                 <Image
                                     alt='author image'
-                                    width={70}
-                                    height={70}
-                                    className='rounded-full'
+                                    width={66}
+                                    height={66}
+                                    className='rounded-full border'
                                     src={user.image_uri} />
                             </div>
                             <div className='flex w-full justify-between'>
                                 <div>
-                                    <p className='text-lg font-semibold text-blue-800'>{user.name}</p>
-
+                                    <p className='text-md font-semibold text-blue-800'>{user.name}</p>
                                     <p className={`text-sm text-slate-700 ${user.new_message_number > 0 ? 'font-bold' : ''}`}>
                                         {user.message.slice(0, 37) + '...'}
                                     </p>
