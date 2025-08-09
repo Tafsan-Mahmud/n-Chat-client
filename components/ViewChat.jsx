@@ -43,7 +43,7 @@ const ViewChat = ({ selectedChat }) => {
             <div className="flex-grow overflow-y-auto custom-scrollbar-viewMessege  p-5">
                 {messages.map((msg) => (
                     <div key={msg.id} className={`flex my-2 ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${msg.sender === 'You' ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-gray-700'}`}>
+                        <div className={`p-3 rounded-lg max-w-xs lg:max-w-md ${msg.sender === 'You' ? 'bg-blue-800 text-white' : 'bg-slate-100 dark:bg-gray-700'}`}>
                             <p>{msg.text}</p>
                         </div>
                     </div>
