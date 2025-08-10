@@ -38,7 +38,7 @@ const ViewChat = ({ selectedChat }) => {
     };
 
     return (
-        <div className='flex flex-col h-full bg-white dark:bg-gray-900'>
+        <div className='flex flex-col h-full bg-slate-50 dark:bg-gray-900'>
             <TopBarViewChat />
             <div className="flex-grow overflow-y-auto custom-scrollbar-viewMessege  p-5">
                 {messages.map((msg) => (
@@ -50,14 +50,14 @@ const ViewChat = ({ selectedChat }) => {
                 ))}
                 <div ref={messagesEndRef} />
             </div>
-            <div className="p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="p-4 bg-slate-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
                 <form onSubmit={handleSendMessage} className="flex items-center">
                     <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
                         placeholder="Type a message..."
-                        className="flex-1 p-3 rounded-full text-slate-600 bg-slate-100 dark:bg-gray-700 border-transparent focus:outline-none focus:ring-2 focus:ring-slate-200"
+                        className="flex-1 p-3 rounded-full text-slate-600 bg-slate-200 dark:bg-gray-700 border-transparent focus:outline-none focus:ring-2 focus:ring-slate-200"
                     />
                     <div className='flex justify-center items-center ml-3'>
                         <Tooltip>

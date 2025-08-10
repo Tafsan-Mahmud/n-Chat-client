@@ -104,11 +104,11 @@ const ActiveUsers = () => {
     }, []);
 
     return (
-        <div className='pb-4 px-4'>
-            <p className='text-xl font-semibold text-slate-600 mt-3 w-30 '>Active Users.</p>
+        <div className='pb-2'>
+            {/* <p className='text-xl font-semibold text-slate-600 mt-3 w-30'>Active Users.</p> */}
             <div
                 ref={scrollContainerRef}
-                className='flex items-center gap-5 custom-scrollbar-activeuser overflow-x-scroll whitespace-nowrap mt-5 cursor-grab active:cursor-grabbing select-none'
+                className='flex items-center gap-5 custom-scrollbar-activeuser overflow-x-scroll whitespace-nowrap mt-5 cursor-grab active:cursor-grabbing select-none px-8'
             >
                 {
                     demoUsers.map((user, i) => (

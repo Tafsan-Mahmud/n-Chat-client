@@ -46,10 +46,28 @@
   /* border-radius: 5px; */
 }
 .custom-scrollbar-activeuser::-webkit-scrollbar {
-  height: 6px; /* Width of the entire scrollbar */
+  height: 3px; /* Width of the entire scrollbar */
 }
 
 
+/* ////////////////////// */
+
+.custom-scrollbar-drawer::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color on hover */
+
+}
+.custom-scrollbar-drawer::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 5px;
+  cursor: pointer;
+}
+.custom-scrollbar-drawer::-webkit-scrollbar-track {
+  background: #edecec; 
+  /* border-radius: 5px; */
+}
+.custom-scrollbar-drawer::-webkit-scrollbar {
+  width: 5px; /* Width of the entire scrollbar */
+}
 
 
 

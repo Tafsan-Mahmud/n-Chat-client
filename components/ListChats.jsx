@@ -3,6 +3,7 @@ import Image from 'next/image';
 import AuthorSec from './AuthorSec';
 import { Input } from "@/components/ui/input"
 import { Search, Settings } from 'lucide-react';
+import ActiveUsers from './ActiveUsers';
 export const demoUsers = [
     {
         name: "Alice Smith",
@@ -97,6 +98,10 @@ const ListChats = () => {
                 <Input className="rounded-full h-12 pl-11 bg-white !text-[15px] text-slate-600" type="email" placeholder="search any persone" />
                 <Search className='absolute top-3 text-slate-600 left-3 h-6 w-6' />
             </div>
+
+            {/* Active User */}
+            <ActiveUsers/>
+
 
             {/* User List */}
 
