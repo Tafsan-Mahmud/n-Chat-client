@@ -88,6 +88,7 @@ const DetailUser = () => {
                             <div><Trash2 /></div>
                             <p className='w-full pb-3 border-b font-semibold'>Delete Chat</p>
                         </div>
+                        
                     </div>
                 </div>
             </div>
