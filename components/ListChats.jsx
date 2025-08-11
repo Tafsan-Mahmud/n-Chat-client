@@ -1,121 +1,89 @@
-import React from 'react';
+'use client'
+
+import React, { useState } from 'react';
 import Image from 'next/image';
 import AuthorSec from './AuthorSec';
-import { Input } from "@/components/ui/input"
 import { Search, Settings } from 'lucide-react';
 import ActiveUsers from './ActiveUsers';
-export const demoUsers = [
-    {
-        name: "Alice Smith",
-        title: "Software Engineer",
-        image_uri: "https://yt3.ggpht.com/ytc/AIdro_neo-y7z_Z7JprdseSPtS-SaJjhYaB2ErjBbebGK222uQ=s88-c-k-c0x00ffffff-no-rj",
-        message: "Hey, I just wanted to touch base with you about the project.",
-        sendTime: "10:30 AM",
-        new_message_number: 4
-    },
-    {
-        name: "Bob Johnson",
-        title: "Product Manager",
-        image_uri: "https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj",
-        message: "The new feature is ready for review. Let me know what you think.",
-        sendTime: "1h ago",
-        new_message_number: 0
-    },
-    {
-        name: "Charlie Brown",
-        title: "UX Designer",
-        image_uri: "https://yt3.ggpht.com/nWc7GLcQcyggG4ZujmEy6vmyAIsD4VeGqG5me2g5uNcR4X6gRdwEJ084NFi8dv-eJMpmn_pzGA=s88-c-k-c0x00ffffff-no-rj",
-        message: "I've updated the wireframes. You can find them in the shared folder.",
-        sendTime: "Yesterday",
-        new_message_number: 0
-    },
-    {
-        name: "Diana Prince",
-        title: "Data Scientist",
-        image_uri: "https://yt3.ggpht.com/V1yZmG_ps71_uIpbStLl5-q50y7HT3td4JcwnF26jqYkylruozDCkJT3H9SZoxi988bJgIEL=s88-c-k-c0x00ffffff-no-rj",
-        message: "The Q4 report is finalized. I'll send it over shortly.",
-        sendTime: "3:15 PM",
-        new_message_number: 9
-    },
-    {
-        name: "Eve Adams",
-        title: "Marketing Specialist",
-        image_uri: "https://yt3.ggpht.com/GABHEdDFOwBPNPeax714Z8OeVTo7R4QvbPVOzB5QW31nXc6ja-rfoH2Y8LAV2yl-dhKVyYlZeg=s88-c-k-c0x00ffffff-no-rj",
-        message: "Our new ad campaign is live. We're seeing great engagement so far.",
-        sendTime: "9:00 AM",
-        new_message_number: 0
-    },
-    {
-        name: "Frank White",
-        title: "DevOps Engineer",
-        image_uri: "https://yt3.ggpht.com/xDc8yrc64lBOpUARZ05s_L987V82DTmUesQnb-HnxHsK2pHPbm_eM_GAXhcSG-Ru8DLZ7xcpPQ=s88-c-k-c0x00ffffff-no-rj",
-        message: "We're experiencing some server issues. I'm investigating the root cause now.",
-        sendTime: "2 days ago",
-        new_message_number: 1
-    },
-    {
-        name: "Grace Lee",
-        title: "Content Creator",
-        image_uri: "https://yt3.ggpht.com/ytc/AIdro_l0zjZxNU3I_L7fX8ctYmKG0XV5JJ2CJa55FbQhHJ8NALE=s88-c-k-c0x00ffffff-no-rj",
-        message: "I finished writing the blog post. It's ready for your final review.",
-        sendTime: "4h ago",
-        new_message_number: 6
-    },
-    {
-        name: "Henry Clark",
-        title: "Financial Analyst",
-        image_uri: "https://yt3.ggpht.com/cgOTgQOP0PFXadljAVWXK-6T9XW9IS105IRoh9PVmIPt5SepEewUQ7GW6nkOrUV1bJ9dV9wReQ=s88-c-k-c0x00ffffff-no-rj",
-        message: "I have some new insights on the budget. Let's schedule a call to discuss.",
-        sendTime: "Yesterday",
-        new_message_number: 3
-    },
-    {
-        name: "Ivy Green",
-        title: "Project Coordinator",
-        image_uri: "https://yt3.ggpht.com/S37E9YG-eDkhbg7vrZgRMMAE_X1qvPv1KDnJs30E689lLdxhYdaiejitka5fqNxqmfpeLU-ulyQ=s88-c-k-c0x00ffffff-no-rj",
-        message: "The team meeting for tomorrow has been moved to 2 PM.",
-        sendTime: "2:45 PM",
-        new_message_number: 8
-    },
-    {
-        name: "Jack Taylor",
-        title: "Sales Representative",
-        image_uri: "https://yt3.ggpht.com/A4I8QX3OIpQGjYiQ7eOp9sZZYchkQSACtMXQZ64HYalx_3DHTRXfTTH8YbFuqdwJP6L7A1SE3Q=s88-c-k-c0x00ffffff-no-rj",
-        message: "I closed the deal! I'll update the records in the CRM.",
-        sendTime: "1:45 PM",
-        new_message_number: 10
-    }
-];
+import { demoUsers } from '../demoUser';
 
 
 
 const ListChats = () => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isFocused, setIsFocused] = useState(false);
+
+    const filteredUsers = searchTerm
+        ? demoUsers.filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        : [];
+
     return (
         <div className='flex-1 overflow-y-auto border-r min-h-[100vh] bg-slate-100 custom-scrollbar-container'>
             <AuthorSec />
+
             {/* Search Input */}
+
             <div className='relative mx-8'>
-                <Input className="rounded-full h-12 pl-11 bg-white !text-[15px] text-slate-600" type="email" placeholder="search any persone" />
-                <Search className='absolute top-3 text-slate-600 left-3 h-6 w-6' />
+                <div className='relative w-full'>
+                    <input className="rounded-lg h-14 pl-12 pr-2 bg-white w-full !text-[15px] text-slate-600 focus:outline-none border" type="email" placeholder="search any persone"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onFocus={() => setIsFocused(true)}
+                        onBlur={() => setSearchTerm('')}
+                    />
+                    <Search className='absolute top-4 text-slate-600 left-4 h-6 w-6' />
+                </div>
+                {searchTerm && (
+                    <div className='bg-stone-50 border rounded-bl-md p-2 pb-5 rounded-br-md z-10 t shadow-2xl w-full absolute top-12'>
+                        <div className='max-h-60 pb-5 overflow-y-auto custom-scrollbar-container'>
+                            {filteredUsers.length > 0 ? (
+                                filteredUsers.map((user, i) => {
+                                    return <div key={i} className='py-2 px-2 rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3 transition-colors duration-200'>
+                                        <div>
+                                            <Image
+                                                alt='author image'
+                                                width={50}
+                                                height={50}
+                                                className='rounded-full border'
+                                                src={user.image_uri}
+                                            />
+                                        </div>
+                                        <div className='flex-1'>
+                                            <p className='text-md font-semibold text-blue-800'>{user.name}</p>
+                                            <p className=''>{user.title}</p>
+                                        </div>
+                                    </div>
+                                })
+                            ) : (
+                                <p className='text-lg text-center text-slate-400'> No user found </p>
+                            )}
+                        </div>
+                    </div>
+                )}
+
             </div>
 
+
+
             {/* Active User */}
-            <ActiveUsers/>
+            <ActiveUsers />
 
 
             {/* User List */}
 
             <div className='mt-5 px-4 pb-5'>
-                {
-                    demoUsers.map((user, i) => {
-                        return <div key={i} className='py-4 px-4 border-b rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3'>
-                            <div className=''>
+            {
+                demoUsers.map((user, i) => {
+                    return (
+                        <div key={i} className='py-4 px-4 border-b rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3'>
+                            {/* The key fix is here: a fixed-size parent div with relative positioning */}
+                           <div className='relative w-[60px] h-[60px] flex-shrink-0'> 
                                 <Image
-                                    alt='author image'
-                                    width={66}
-                                    height={66}
-                                    className='rounded-full border'
-                                    src={user.image_uri} />
+                                    alt='User Avatar'
+                                    fill
+                                    className='border rounded-full object-cover'
+                                    src={user.image_uri}
+                                />
                             </div>
                             <div className='flex w-full justify-between'>
                                 <div>
@@ -128,20 +96,21 @@ const ListChats = () => {
                                     <span className='text-sm'>{user.sendTime}</span>
                                     {
                                         user.new_message_number > 0 &&
-                                        <div className='font-semibold  text-sm text-white bg-blue-800 w-5 h-5 rounded-full flex items-center justify-center'>
-                                        {user.new_message_number}
-                                    </div>
+                                        <div className='font-semibold text-sm text-white bg-blue-800 w-5 h-5 rounded-full flex items-center justify-center'>
+                                            {user.new_message_number}
+                                        </div>
                                     }
-                                    
                                 </div>
                             </div>
                         </div>
-                    })
-                }
+                    );
+                })
+            }
+        </div>
 
-            </div>
         </div>
     );
 };
 
 export default ListChats;
+

@@ -12,8 +12,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+
 const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
-const page = () => {
+
+// Changed from 'const page = () => { ... }' to a named function export
+export default function Page() {
     const router = useRouter();
     const [selectedFile, setSelectedFile] = useState(null);
 
@@ -23,10 +26,11 @@ const page = () => {
             setSelectedFile(file);
         }
     };
+
     return (
         <div className='w-full min-h-[100vh] bg-slate-100 flex justify-center items-center'>
-            <div className='bg-slate-50 w-[30%] min-h-[92vh] rounded p-4 relative'>
-                <div onClick={() => router.push('/chats')} className='absolute  text-lg top-6 text-slate-600 hover:text-slate-500'>
+            <div className='bg-slate-50 w-[35%] min-h-[92vh] rounded py-4 px-8 relative'>
+                <div onClick={() => router.push('/chats')} className='absolute  text-lg top-6 text-slate-600 hover:text-slate-500'>
                     <Tooltip>
                         <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
                             <ChevronLeft />
@@ -44,12 +48,11 @@ const page = () => {
                     <div className='bg-slate-100 py-6 px-4 rounded-md flex gap-4'>
                         <div className='flex justify-start'>
                             <div className='flex flex-col justify-center items-center gap-3 border-r pr-3'>
-                                <div className='w-25 h-25 flex justify-center items-center'>
+                                <div className='relative w-[100px] h-[100px] flex justify-center items-center'>
                                     <Image
                                         alt='author image'
-                                        width={100}
-                                        height={100}
-                                        className='rounded-full border'
+                                        fill
+                                        className='rounded-full border object-cover'
                                         src={im}
                                     />
                                 </div>
@@ -96,16 +99,16 @@ const page = () => {
                     <div className='bg-slate-100 py-6 px-4 rounded-md'>
                         <div className="">
                             <Label htmlFor="currentpass" className='text-slate-700'>Current Password</Label>
-                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="currentpass" placeholder="enter current password" />
+                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="password" id="currentpass" placeholder="enter current password" />
 
                             <Label htmlFor="newpass" className='text-slate-700'>New Password</Label>
-                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="newpass" placeholder="enter new password" />
+                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="password" id="newpass" placeholder="enter new password" />
 
                             <Label htmlFor="confirmpass" className='text-slate-700'>Confirm Password</Label>
-                            <Input className='text-slate-700 mb-3 mt-2 bg-slate-50' type="text" id="confirmpass" placeholder="enter confirm password" />
+                            <Input className='text-slate-700 mb-3 mt-2 bg-slate-50' type="password" id="confirmpass" placeholder="enter confirm password" />
 
                             <div className='flex justify-end'>
-                                <p onClick={()=>router.push('/forgotPass')} className='text-slate-600 w-30 cursor-pointer hover:text-blue-700 underline my-4'>forgot password</p>
+                                <p onClick={() => router.push('/forgotPass')} className='text-slate-600 w-30 cursor-pointer hover:text-blue-700 underline my-4'>forgot password</p>
                             </div>
                         </div>
                         <Button className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Change Password</Button>
@@ -115,5 +118,3 @@ const page = () => {
         </div>
     );
 };
-
-export default page;

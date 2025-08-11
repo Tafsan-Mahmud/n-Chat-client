@@ -2,7 +2,7 @@ import React from 'react';
 import ActiveUsers from './ActiveUsers';
 import Image from 'next/image';
 import { Ban, Heart, Palette, SmilePlus, Trash2, TriangleAlert, UserPen, Users } from 'lucide-react';
-import { demoUsers } from './ListChats';
+import { demoUsers } from '../demoUser';
 const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
 
 const DetailUser = () => {
@@ -95,16 +95,16 @@ const DetailUser = () => {
             <div className='mx-4'>
                 <h5 className='text-lg font-semibold text-slate-600 mt-2 mb-2'>Attachments</h5>
 
-                <div className='flex-wrap'>
+                <div className='flex-wrap select-none'>
                     {
                         demoUsers.map((data, i) => {
-                            return <div key={i} className='inline-block mr-3 mb-2'>
-                                <div className='w-19 h-19 flex justify-center items-center'>
+                            return <div key={i} className='inline-block mr-3 mb-2 select-none'>
+                                <div className='w-19 h-19 flex justify-center items-center select-none'>
                                     <Image
                                         alt='author image'
                                         width={76}
                                         height={76}
-                                        className='rounded cursor-pointer'
+                                        className='rounded cursor-pointer select-none'
                                         src={data.image_uri}
                                     />
                                 </div>

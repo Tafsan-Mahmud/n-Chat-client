@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { demoUsers } from './ListChats';
+import { demoUsers } from '../demoUser';
 import Image from 'next/image';
 
 const ActiveUsers = () => {
