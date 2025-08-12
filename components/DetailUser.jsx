@@ -1,16 +1,25 @@
 import React from 'react';
 import ActiveUsers from './ActiveUsers';
 import Image from 'next/image';
+import logo from '../public/images/logo/logoName.png';
 import { Ban, Heart, Palette, SmilePlus, Trash2, TriangleAlert, UserPen, Users } from 'lucide-react';
 import { demoUsers } from '../demoUser';
 const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
 
 const DetailUser = () => {
     return (
-        <div className='flex-1 overflow-y-auto h-full custom-scrollbar-userDetails'>
+        <div className='relative flex-1 overflow-y-auto h-full custom-scrollbar-userDetails'>
             {/* active Users */}
             {/* <ActiveUsers /> */}
             {/* user Details  */}
+            {/* topbar logo */}
+            <div className='h-22 w-full border-b flex items-center justify-center'>
+                <Image
+                className='w-[135px] h-[70px]'
+                    alt='logo'
+                    src={logo}
+                />
+            </div>
             <div className='flex justify-center mt-4'>
                 <div className='w-25 h-25 flex justify-center items-center'>
                     <Image
@@ -88,7 +97,7 @@ const DetailUser = () => {
                             <div><Trash2 /></div>
                             <p className='w-full pb-3 border-b font-semibold'>Delete Chat</p>
                         </div>
-                        
+
                     </div>
                 </div>
             </div>

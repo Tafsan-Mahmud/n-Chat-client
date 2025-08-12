@@ -7,6 +7,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import logo from '../../public/images/logo/logoName.png';
 import Image from 'next/image';
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -28,9 +29,15 @@ export default function Page() {
     };
 
     return (
-        <div className='w-full min-h-[100vh] bg-slate-100 flex justify-center items-center'>
+        <div className='w-full relative min-h-[100vh] bg-slate-100 flex justify-center items-center'>
+            <div onClick={()=>router.push('chats')} className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+                <Image
+                alt='logo'
+                src={logo}
+                />
+            </div>
             <div className='bg-slate-50 w-[35%] min-h-[92vh] rounded py-4 px-8 relative'>
-                <div onClick={() => router.push('/chats')} className='absolute  text-lg top-6 text-slate-600 hover:text-slate-500'>
+                <div onClick={() => router.push('/chats')} className='absolute text-lg top-6 text-slate-600 hover:text-slate-500'>
                     <Tooltip>
                         <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
                             <ChevronLeft />

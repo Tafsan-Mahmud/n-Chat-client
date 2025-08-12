@@ -25,7 +25,7 @@ const ListChats = () => {
 
             <div className='relative mx-8'>
                 <div className='relative w-full'>
-                    <input className="rounded-lg h-14 pl-12 pr-2 bg-white w-full !text-[15px] text-slate-600 focus:outline-none border" type="email" placeholder="search any persone"
+                    <input className="rounded-md h-14 pl-12 pr-2 bg-white w-full !text-[15px] text-slate-600 focus:outline-none border" type="email" placeholder="search any persone"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onFocus={() => setIsFocused(true)}
@@ -34,7 +34,7 @@ const ListChats = () => {
                     <Search className='absolute top-4 text-slate-600 left-4 h-6 w-6' />
                 </div>
                 {searchTerm && (
-                    <div className='bg-stone-50 border rounded-bl-md p-2 pb-5 rounded-br-md z-10 t shadow-2xl w-full absolute top-12'>
+                    <div className='bg-stone-50 border rounded-bl-md p-2 pb-5 rounded-br-md z-10 t shadow-2xl w-full absolute top-13'>
                         <div className='max-h-60 pb-5 overflow-y-auto custom-scrollbar-container'>
                             {filteredUsers.length > 0 ? (
                                 filteredUsers.map((user, i) => {
