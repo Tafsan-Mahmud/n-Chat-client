@@ -2,8 +2,9 @@
 import { EllipsisVertical, Heart } from 'lucide-react';
 import Image from 'next/image';
 import HeartFavorite from './HeartFavorite';
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Input } from "@/components/ui/input"
+import { demoUsers } from '../demoUser';
 import {
     Popover,
     PopoverContent,
@@ -15,7 +16,15 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Label } from "@/components/ui/label"
-const TopBarViewChat = () => {
+const TopBarViewChat = (props) => {
+    const {selectedChatId} = props;
+    const [selectedUser, setSelectedUser] = useState({});
+    useEffect(()=>{
+        if(selectedChatId){
+            const findSelectedUser = demoUsers.find(data =>data.id === selectedChatId);
+            setSelectedUser(findSelectedUser)
+        }
+    },[selectedChatId])
     const [isLiked, setIsLiked] = useState(false);
 
     // Function to toggle the state
@@ -32,10 +41,10 @@ const TopBarViewChat = () => {
                         width={55}
                         height={55}
                         className='rounded-full'
-                        src={'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj'} />
+                        src={selectedUser.image_uri} />
                 </div>
                 <div>
-                    <p className='text-lg font-semibold'>Bob Johnson</p>
+                    <p className='text-lg font-semibold'>{selectedUser.name}</p>
                     <p className='text-green-500 font-semibold'>online...</p>
                 </div>
             </div>

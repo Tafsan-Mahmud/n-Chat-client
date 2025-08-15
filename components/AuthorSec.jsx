@@ -1,5 +1,5 @@
 import React from 'react';
-import { BellRing, MonitorDot, Settings, SunMoon,Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked } from 'lucide-react';
+import { BellRing, MonitorDot, Settings, SunMoon,Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart } from 'lucide-react';
 import Image from 'next/image';
 import {
     Sheet,
@@ -10,6 +10,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { redirect, useRouter } from 'next/navigation';
+import Link from 'next/link';
 const im = 'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj';
 const AuthorSec = () => {
     const router = useRouter();
@@ -84,6 +85,12 @@ const AuthorSec = () => {
                                                 <p className='w-full pb-3 border-b font-semibold'>Photos and Media</p>
                                             </div>
                                         </div>
+                                        <div className='w-full '>
+                                            <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
+                                                <div><Heart /></div>
+                                                <p className='w-full pb-3 border-b font-semibold'>Favorite Chats</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className='mx-4'>
@@ -111,7 +118,8 @@ const AuthorSec = () => {
                                 </div>
                                 <div className='mx-4'>
                                     <h5 className='text-lg font-semibold text-slate-600 mt-2 mb-2'>Account Settings</h5>
-                                    <div onClick={()=>router.push('/accountSetting')} className='rounded-lg p-2 bg-slate-50 hover:bg-slate-200'>
+                                    <Link href={'/accountSetting'}>
+                                    <div  className='rounded-lg p-2 bg-slate-50 hover:bg-slate-200'>
                                         <p className='text-sm text-slate-500 px-2 py-2'>Manage your accounts sensitive informations</p>
                                         <div className='w-full'>
                                             <div className='flex text-slate-600 p-2 gap-3 cursor-pointer'>
@@ -126,6 +134,7 @@ const AuthorSec = () => {
                                             </div>
                                         </div>
                                     </div>
+                                    </Link>
                                 </div>
                             </SheetContent>
                         </Sheet>

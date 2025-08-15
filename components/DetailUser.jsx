@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ActiveUsers from './ActiveUsers';
 import Image from 'next/image';
 import logo from '../public/images/logo/logoName.png';
 import { Ban, Heart, Palette, SmilePlus, Trash2, TriangleAlert, UserPen, Users } from 'lucide-react';
 import { demoUsers } from '../demoUser';
-const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
 
-const DetailUser = () => {
+const DetailUser = (props) => {
+    const {selectedChatId} = props
+    const [selectedUser, setSelectedUser] = useState({});
+        useEffect(()=>{
+            if(selectedChatId){
+                const findSelectedUser = demoUsers.find(data =>data.id === selectedChatId);
+                setSelectedUser(findSelectedUser)
+            }
+        },[selectedChatId])
     return (
         <div className='relative flex-1 overflow-y-auto h-full custom-scrollbar-userDetails'>
             {/* active Users */}
@@ -27,13 +34,13 @@ const DetailUser = () => {
                         width={100}
                         height={100}
                         className='rounded-full border'
-                        src={im}
+                        src={selectedUser.image_uri}
                     />
                 </div>
             </div>
             <div className='text-center mb-7'>
-                <p className='text-2xl font-semibold text-slate-800'>Bob Johnson</p>
-                <p className='text-sm text-slate-600'>Product Manager</p>
+                <p className='text-2xl font-semibold text-slate-800'>{selectedUser.name}</p>
+                <p className='text-sm text-slate-600'>{selectedUser.title}</p>
             </div>
             {/*customisation card  */}
             <div className='mx-4'>
@@ -93,7 +100,7 @@ const DetailUser = () => {
                         </div>
                     </div>
                     <div className='w-full'>
-                        <div className='flex text-red-600 p-2 gap-3 cursor-pointer hover:bg-red-200 rounded '>
+                        <div className='flex text-red-600 p-2 gap-3 hover:bg-slate-200 cursor-pointer rounded '>
                             <div><Trash2 /></div>
                             <p className='w-full pb-3 border-b font-semibold'>Delete Chat</p>
                         </div>

@@ -2,7 +2,8 @@ import React, { useRef, useEffect } from 'react';
 import { demoUsers } from '../demoUser';
 import Image from 'next/image';
 
-const ActiveUsers = () => {
+const ActiveUsers = (props) => {
+    const {handlClickedChat} = props
     const scrollContainerRef = useRef(null);
     const scrollVelocityRef = useRef(0); // Tracks scroll speed for animation
     const animationFrameRef = useRef(null); // ID for the animation loop
@@ -112,7 +113,7 @@ const ActiveUsers = () => {
             >
                 {
                     demoUsers.map((user, i) => (
-                        <div key={i} className='inline-block'>
+                        <div onClick={()=>handlClickedChat(user.id)} key={i} className='inline-block'>
                             <div className='w-14 h-14 flex justify-center items-center relative'>
                                 <Image
                                     alt='author image'

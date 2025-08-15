@@ -9,9 +9,14 @@ import { demoUsers } from '../demoUser';
 
 
 
-const ListChats = () => {
+const ListChats = (props) => {
+    const {handlClickedChat, selectedChatId} = props
     const [searchTerm, setSearchTerm] = useState('');
     const [isFocused, setIsFocused] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const handleselectUser = (id) =>{
+        setSelectedUser(id)
+    }
 
     const filteredUsers = searchTerm
         ? demoUsers.filter(user => user.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -63,10 +68,8 @@ const ListChats = () => {
 
             </div>
 
-
-
             {/* Active User */}
-            <ActiveUsers />
+            <ActiveUsers handlClickedChat={handlClickedChat}/>
 
 
             {/* User List */}
@@ -75,7 +78,7 @@ const ListChats = () => {
             {
                 demoUsers.map((user, i) => {
                     return (
-                        <div key={i} className='py-4 px-4 border-b rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3'>
+                        <div onClick={()=>handlClickedChat(user.id)} key={i} className={`py-3 my-1 px-4 border-b rounded cursor-pointer hover:bg-slate-200 flex items-center gap-3 ${selectedChatId === i+1 && 'bg-slate-200'}`}>
                             {/* The key fix is here: a fixed-size parent div with relative positioning */}
                            <div className='relative w-[60px] h-[60px] flex-shrink-0'> 
                                 <Image

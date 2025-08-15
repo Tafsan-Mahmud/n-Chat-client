@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import Link from 'next/link';
 
 const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
 
@@ -30,14 +31,17 @@ export default function Page() {
 
     return (
         <div className='w-full relative min-h-[100vh] bg-slate-100 flex justify-center items-center'>
-            <div onClick={()=>router.push('chats')} className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+           <Link href={'/chats'}>
+            <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
                 <Image
                 alt='logo'
                 src={logo}
                 />
             </div>
+           </Link>
             <div className='bg-slate-50 w-[35%] min-h-[92vh] rounded py-4 px-8 relative'>
-                <div onClick={() => router.push('/chats')} className='absolute text-lg top-6 text-slate-600 hover:text-slate-500'>
+                <Link href={'/chats'}>
+                <div className='absolute text-lg top-6 text-slate-600 hover:text-slate-500'>
                     <Tooltip>
                         <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
                             <ChevronLeft />
@@ -48,6 +52,7 @@ export default function Page() {
                         </TooltipContent>
                     </Tooltip>
                 </div>
+                </Link>
                 <h1 className='text-2xl text-center font-semibold text-blue-800 border-b pb-4'>Account Settings</h1>
                 {/* personal details */}
                 <div className='my-4'>
@@ -115,7 +120,10 @@ export default function Page() {
                             <Input className='text-slate-700 mb-3 mt-2 bg-slate-50' type="password" id="confirmpass" placeholder="enter confirm password" />
 
                             <div className='flex justify-end'>
-                                <p onClick={() => router.push('/forgotPass')} className='text-slate-600 w-30 cursor-pointer hover:text-blue-700 underline my-4'>forgot password</p>
+                                <Link href={'/forgotPass'}> 
+                                <p className='text-slate-600 w-30 cursor-pointer hover:text-blue-700 underline my-4'>forgot password</p>
+                                </Link>
+
                             </div>
                         </div>
                         <Button className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Change Password</Button>

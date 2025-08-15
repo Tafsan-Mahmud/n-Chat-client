@@ -1,7 +1,7 @@
 
 
 'use client';
-import { useEffect, useMemo, useRef, useState, } from 'react';
+import { useEffect, useRef, useState, } from 'react';
 import TopBarViewChat from './TopBarViewChat';
 import { Image, SendHorizontal, Smile } from 'lucide-react';
 import { fkMessege } from '../fakeMessege';
@@ -14,42 +14,23 @@ import {
 
 const ViewChat = (props) => {
     const senderid = 15;
-    const { selectedChatId } = props;
+    const { selectedChatId } = props
     console.log(selectedChatId)
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
-    // This runs only once when the component mounts.
-    const chatsMap = useMemo(() => {
-        const map = new Map();
-        for (const message of fkMessege) {
-            // Use the sorted participants array as the key for the chat
-            const key = message.participants.sort((a, b) => a - b).join('-');
-            if (!map.has(key)) {
-                map.set(key, []);
-            }
-            map.get(key).push(message);
-        }
-        return map;
-    }, []); // Empty dependency array ensures it runs only once.
-
-    // 2. Modify the useEffect hook to use the optimized Map.
-    // This is the core change.
     useEffect(() => {
         if (selectedChatId) {
-            // Create the lookup key based on the selected chat and sender IDs
-            const key = [selectedChatId, senderid].sort((a, b) => a - b).join('-');
-
-            // Get the messages directly from the Map. This is O(1)!
-            const chatMessages = chatsMap.get(key) || [];
-
-            setMessages(chatMessages);
-        } else {
-            setMessages([]);
+            const filteredMessege = fkMessege.filter(
+                (data) =>
+                    (data.receiverId === selectedChatId && data.senderID === senderid) ||
+                    (data.senderID === selectedChatId && data.receiverId === senderid)
+            );
+            console.log(filteredMessege);
+            setMessages(filteredMessege || []);
         }
-    }, [selectedChatId, chatsMap, senderid]); // Dependency array must include chatsMap and senderid
-
+    }, [selectedChatId]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -66,7 +47,7 @@ const ViewChat = (props) => {
 
     return (
         <div className='flex flex-col h-full bg-slate-50 dark:bg-gray-900'>
-            <TopBarViewChat selectedChatId={selectedChatId}/>
+            <TopBarViewChat />
             <div className="flex-grow overflow-y-auto custom-scrollbar-viewMessege  p-5">
                 {messages.map((msg, i) => (
                     <div key={`${msg.id}${i}}`} className={`flex my-2 ${msg.senderID === 15 ? 'justify-end' : 'justify-start'}`}>

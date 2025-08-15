@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/input-otp";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 const Page = () => {
     const router = useRouter();
     const [tglUi, setTglUi] = useState(true);
@@ -27,12 +28,14 @@ const Page = () => {
     }, [tglUi]);
     return (
         <div className='relative w-full min-h-screen bg-slate-50 flex flex-col justify-center items-center'>
-            <div onClick={() => router.push('chats')} className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+            <Link href={'/chats'}>
+            <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
                 <Image
                     alt='logo'
                     src={logo}
                 />
             </div>
+            </Link>
             {
                 tglUi ?
                     <Mail className='w-25 h-25 text-slate-500' /> : <ServerCog className='w-25 h-25 text-slate-500' />
