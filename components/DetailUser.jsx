@@ -7,7 +7,17 @@ import { demoUsers } from '../demoUser';
 
 const DetailUser = (props) => {
     const {selectedChatId} = props
-    const [selectedUser, setSelectedUser] = useState({});
+    const [selectedUser, setSelectedUser] = useState(
+        {
+    id: 10,
+    name: "Jack Taylor",
+    title: "Sales Representative",
+    image_uri: "https://yt3.ggpht.com/A4I8QX3OIpQGjYiQ7eOp9sZZYchkQSACtMXQZ64HYalx_3DHTRXfTTH8YbFuqdwJP6L7A1SE3Q=s88-c-k-c0x00ffffff-no-rj",
+    message: "I closed the deal! I'll update the records in the CRM.",
+    sendTime: "1:45 PM",
+    new_message_number: 10
+  }
+    );
         useEffect(()=>{
             if(selectedChatId){
                 const findSelectedUser = demoUsers.find(data =>data.id === selectedChatId);
