@@ -33,31 +33,31 @@ const Page = () => {
                             />
                         </div>
                         <div className='text-center animate-fadeInUpWithDelay'>
-                            <span className='text-5xl font-semibold text-blue-800'>NChat Web / {uri}</span>
+                            <span className='text-5xl font-semibold text-blue-800'>NChat Web </span>
                             <p className='text-slate-600 text-xl'>Chose a person to start the conversation</p>
                         </div>
                         <style>
                             {`
-                                    @keyframes fadeInUpWithDelay {
-          0% {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+                                @keyframes fadeInUpWithDelay {
+                                0% {
+                                    opacity: 0;
+                                    transform: translateY(15px);
+                                }
+                                100% {
+                                    opacity: 1;
+                                    transform: translateY(0);
+                                }
+                                }
 
-        /* This utility class applies the animation. */
-        .animate-fadeInUpWithDelay {
-          opacity: 0;
-          animation-name: fadeInUpWithDelay;
-          animation-duration: 1s;
-          animation-delay: 300ms;
-          animation-timing-function: ease-out;
-          animation-fill-mode: forwards;
-        }`
+                                /* This utility class applies the animation. */
+                                .animate-fadeInUpWithDelay {
+                                opacity: 0;
+                                animation-name: fadeInUpWithDelay;
+                                animation-duration: 1s;
+                                animation-delay: 200ms;
+                                animation-timing-function: ease-out;
+                                animation-fill-mode: forwards;
+                                }`
                             }
                         </style>
                     </div>

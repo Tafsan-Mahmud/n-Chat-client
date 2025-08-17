@@ -18,12 +18,12 @@ const AuthorSec = () => {
         <div>
             {/* <h4 className='px-8 py-3 text-xl font-semibold text-blue-800 text-center border-b mb-2'>NChat</h4> */}
             <div className='pb-7 mt-4 px-8 flex items-center gap-3'>
-                <div className=''>
+                <div className='select-none'>
                     <Image
                         alt='author image'
                         width={100}
                         height={100}
-                        className='rounded-full'
+                        className='rounded-full select-none'
                         src={im} />
                 </div>
                 <div className='flex w-full justify-between'>

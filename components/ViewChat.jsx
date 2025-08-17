@@ -104,7 +104,7 @@ const ViewChat = (props) => {
                             </TooltipContent>
                         </Tooltip>
 
-                        <button type="submit" className="ml-1 p-3 bg-blue-800 text-white rounded-full hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <button type="submit" className="ml-1 p-3 bg-blue-800 text-white rounded-full hover:bg-blue-700 focus:outline-none cursor-pointer">
                             <SendHorizontal />
                         </button>
                     </div>
