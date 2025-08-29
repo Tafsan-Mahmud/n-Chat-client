@@ -30,9 +30,9 @@ const DetailUser = (props) => {
             {/* <ActiveUsers /> */}
             {/* user Details  */}
             {/* topbar logo */}
-            <div className='h-22 w-full border-b flex items-center justify-center'>
+            <div className='h-22 w-full border-b flex items-center justify-end '>
                 <Image
-                className='w-[135px] h-[70px]'
+                className='w-[135px] h-[70px] mr-5'
                     alt='logo'
                     src={logo}
                 />

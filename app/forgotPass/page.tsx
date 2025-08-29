@@ -4,7 +4,7 @@ import { Mail, ServerCog } from 'lucide-react';
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import logo from '../../public/images/logo/logoName.png'
+import logo from '@/public/images/logo/logoName.png'
 import {
     InputOTP,
     InputOTPGroup,
