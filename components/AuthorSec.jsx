@@ -1,15 +1,27 @@
 import React from 'react';
-import { BellRing, MonitorDot, Settings, SunMoon,Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart } from 'lucide-react';
+import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu } from 'lucide-react';
 import Image from 'next/image';
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
-    SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import { redirect, useRouter } from 'next/navigation';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 const im = 'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj';
 const AuthorSec = () => {
@@ -119,22 +131,55 @@ const AuthorSec = () => {
                                 <div className='mx-4'>
                                     <h5 className='text-lg font-semibold text-slate-600 mt-2 mb-2'>Account Settings</h5>
                                     <Link href={'/accountSetting'}>
-                                    <div  className='rounded-lg p-2 bg-slate-50 hover:bg-slate-200'>
-                                        <p className='text-sm text-slate-500 px-2 py-2'>Manage your accounts sensitive informations</p>
-                                        <div className='w-full'>
-                                            <div className='flex text-slate-600 p-2 gap-3 cursor-pointer'>
-                                                <div><ContactRound /></div>
-                                                <p className='w-full pb-3 border-b font-semibold'>Personal details</p>
+                                        <div className='rounded-lg p-2 bg-slate-50 hover:bg-slate-200'>
+                                            <p className='text-sm text-slate-500 px-2 py-2'>Manage your accounts sensitive informations</p>
+                                            <div className='w-full'>
+                                                <div className='flex text-slate-600 p-2 gap-3 cursor-pointer'>
+                                                    <div><ContactRound /></div>
+                                                    <p className='w-full pb-3 border-b font-semibold'>Personal details</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full'>
+                                                <div className='flex text-slate-600 p-2 gap-3 cursor-pointer'>
+                                                    <div><DoorClosedLocked /></div>
+                                                    <p className='w-full pb-3 border-b font-semibold'>Password and Security</p>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className='w-full'>
-                                            <div className='flex text-slate-600 p-2 gap-3 cursor-pointer'>
-                                                <div><DoorClosedLocked /></div>
-                                                <p className='w-full pb-3 border-b font-semibold'>Password and Security</p>
-                                            </div>
-                                        </div>
-                                    </div>
                                     </Link>
+                                </div>
+                                <div className='mx-4'>
+                                    <Dialog>
+                                        <h5 className='text-lg font-semibold text-slate-600 mt-2 mb-2'>System</h5>
+                                        <div className='rounded-lg p-2 bg-slate-50'>
+                                            <div className='w-full '>
+
+                                                <DialogTrigger asChild>
+                                                    <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
+                                                        <div><Cpu /></div>
+                                                        <p className='w-full pb-3 border-b font-semibold'>About</p>
+                                                    </div>
+                                                </DialogTrigger>
+
+                                            </div>
+                                        </div>
+
+                                        <DialogContent className="sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>Edit profile</DialogTitle>
+                                                <DialogDescription>
+                                                    Make changes to your profile here. Click save when you&apos;re
+                                                    done.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <DialogFooter>
+                                                <DialogClose asChild>
+                                                    <Button variant="outline">Cancel</Button>
+                                                </DialogClose>
+                                                <Button >Save changes</Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </SheetContent>
                         </Sheet>

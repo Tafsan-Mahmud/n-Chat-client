@@ -15,9 +15,9 @@ import Link from "next/link"
 import Image from "next/image"
 import Multibg from "@/components/multibg"
 
-export default function CardDemo() {
+export default function Login() {
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen relative flex flex-col">
             <Multibg/>
             <div className="flex-grow flex flex-col items-center justify-center p-4">
                 <Card className="w-full rounded-md max-w-sm shadow-none relative pt-12">
@@ -32,7 +32,7 @@ export default function CardDemo() {
                     </div>
                     {/* Card Header */}
                     <CardHeader>
-                        <CardTitle className="text-2xl text-center mb-">Sign In</CardTitle>
+                        <CardTitle className="text-2xl text-center mb-2">Sign In</CardTitle>
                         <CardDescription className="text-center">
                             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus, quam. Numquam eligendi soluta.
                         </CardDescription>
@@ -55,12 +55,12 @@ export default function CardDemo() {
                                         <Label htmlFor="password">Password</Label>
                                     </div>
                                     <Input id="password" placeholder="enter password" type="password" required />
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href="/forgotPass"
                                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                     >
                                         Forgot your password?
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </form>
@@ -73,7 +73,7 @@ export default function CardDemo() {
                     </CardFooter>
                     {/* "New User?" Section */}
                     <div className="text-center my-3 text-sm ">
-                        <span><span className="text-neutral-400">New User?</span> <Link href={'/authCreateAcc'}>Create and account</Link></span>
+                        <span><span className="text-neutral-400">New User?</span> <Link href={'/register'}>Create and account</Link></span>
                     </div>
                 </Card>
                 <Ppts />

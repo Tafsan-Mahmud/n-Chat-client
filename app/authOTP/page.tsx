@@ -35,7 +35,7 @@ export default function AuthOTP() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen relative flex flex-col">
             <Multibg />
             <div className="flex-grow flex flex-col items-center justify-center p-4">
                 <Card className="w-full rounded-md max-w-sm shadow-none relative pt-12">

@@ -54,7 +54,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
   const countryOptions: CountryOption[] = useMemo(() => {
     return Country.map((country: CountryData) => ({
       value: country.name,
-      label: `${country.name} (+${country.callingCode})`,
+      label: `${country.name}`,
       id: country.id,
       callCode: country.callingCode,
     }));

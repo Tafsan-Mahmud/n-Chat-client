@@ -12,6 +12,11 @@ import {
     CardTitle,
     CardContent,
 } from "@/components/ui/card";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CountrySelect from "@/components/countrySelect"; // Corrected import
@@ -19,6 +24,9 @@ import Link from "next/link";
 import Ppts from "@/components/ppts";
 import Image from 'next/image';
 import Multibg from '@/components/multibg';
+import { CircleAlert, Eye, EyeOff } from 'lucide-react';
+import { registerAuth } from '@/apis/handleRegister';
+import { useRouter } from 'next/navigation';
 
 // IMPORTANT: This interface MUST match the 'CountryOption' in your components/CountrySelect.tsx
 interface SelectedCountryOption {
@@ -28,13 +36,15 @@ interface SelectedCountryOption {
     id: string; // The unique ID
 }
 
-export default function AuthCreateAcc() {
+export default function Register() {
+    const router = useRouter()
+    const [showPass, setShowPass] = useState(false);
+    const [showPassConfirm, setShowPassConfirm] = useState(false);
+    const [confirmPassError, setConfirmPassError] = useState(true);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        callCode: '93',
-        country: 'Afghanistan', // This will store the country NAME string (e.g., "United States")
-        mobile: '',
+        country: '',
         password: '',
         confirmPassword: '',
     });
@@ -47,28 +57,27 @@ export default function AuthCreateAcc() {
     const handleCountryDropdownChange = useCallback((selectedOption: SelectedCountryOption | null) => {
         setFormData(prev => ({
             ...prev,
-            country: selectedOption ? selectedOption.value : '', // Store the COUNTRY NAME
-            callCode: selectedOption ? selectedOption.callCode : '', // Store the CALLING CODE
+            country: selectedOption ? selectedOption.value : '',
+            callCode: selectedOption ? selectedOption.callCode : '',
         }));
     }, []);
 
-    const handleMobileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setFormData(prev => ({ ...prev, mobile: value }));
-    }, []);
-
-    const handleSubmit = useCallback((e: React.FormEvent) => {
+    const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form Data Submitted:", formData);
-        // Add your form submission logic here (e.g., API call)
-    }, [formData]);
+        if (formData.password === formData.confirmPassword) {
+            setConfirmPassError(true)
+            const res = await registerAuth(formData, router)
 
-    // The 'value' for CountrySelect is now just the country name string
+        } else {
+            setConfirmPassError(false)
+        }
+
+    }, [formData,router]);
     const selectedCountryName = useMemo(() => formData.country, [formData.country]);
 
     return (
-        <div className="min-h-screen flex flex-col">
-            <Multibg/>
+        <div className="min-h-screen relative flex flex-col">
+            <Multibg />
             <div className="flex-grow flex flex-col items-center justify-center mt-10 p-4">
                 <Card className="w-full rounded-md max-w-sm shadow-none relative pt-12">
                     <div
@@ -80,21 +89,21 @@ export default function AuthCreateAcc() {
                             />
                         </div>
                     </div>
-                    <CardHeader>
-                        <CardTitle className="text-2xl text-center ">Create Account</CardTitle>
-                        <CardDescription className="text-center">
-                            Lorem, ipsum dolor sit amet sdf amet eligendi soluta.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit}>
+                        <CardHeader>
+                            <CardTitle className="text-2xl text-center ">Create Account</CardTitle>
+                            <CardDescription className="text-center mb-6">
+                                Lorem, ipsum dolor sit amet sdf amet eligendi soluta.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
                             <div className="flex flex-col gap-5">
                                 <div className="grid gap-2">
                                     <Label htmlFor="name">Name</Label>
                                     <Input
                                         id="name"
                                         type="text"
-                                        placeholder="enter your name"
+                                        placeholder="Enter your name"
                                         required
                                         value={formData.name}
                                         onChange={handleInputChange}
@@ -106,7 +115,7 @@ export default function AuthCreateAcc() {
                                     </div>
                                     <Input
                                         id="email"
-                                        placeholder="m@example.com"
+                                        placeholder="Enter your email"
                                         type="email"
                                         required
                                         value={formData.email}
@@ -122,46 +131,69 @@ export default function AuthCreateAcc() {
                                         onChange={handleCountryDropdownChange}
                                     />
                                 </div>
-                                <div className="grid gap-2 relative">
-                                    <div className="flex items-center">
-                                        <Label htmlFor="mobile">Mobile</Label>
-                                    </div>
-                                    {formData.callCode && <div className='absolute bottom-0.5 left-0.5 bg-[#ffffff]  px-3 py-1 border-r rounded-tl-md rounded-bl-md'>
-                                        +{formData.callCode}
-                                    </div>}
-                                    <Input
-                                        className={formData.country ? 'pl-17' : ''}
-                                        id="mobile"
-                                        placeholder="enter your number"
-                                        type="number"
-                                        required
-                                        value={formData.mobile}
-                                        onChange={handleMobileInputChange}
-                                    />
-                                </div>
-                                <div className="grid gap-2">
+                                <div className="relative grid gap-2">
                                     <div className="flex items-center">
                                         <Label htmlFor="password">Password</Label>
                                     </div>
+                                    <div className='absolute bottom-[1px] right-1 rounded-tr-md rounded-br-md flex justify-center items-center  w-10 h-8 bg-white '>
+                                        {
+                                            showPass ?
+                                                <EyeOff onClick={() => setShowPass(false)} className='w-5 text-slate-600 cursor-pointer' />
+                                                :
+                                                <Eye onClick={() => setShowPass(true)} className='w-5 text-slate-600 cursor-pointer' />
+                                        }
+                                    </div>
                                     <Input
                                         id="password"
-                                        placeholder="enter password"
-                                        type="password"
+                                        placeholder="Enter password"
+                                        type={`${showPass ? 'text' : 'password'}`}
                                         required
                                         value={formData.password}
                                         onChange={handleInputChange}
                                     />
                                 </div>
+                                <div className="relative grid gap-2">
+                                    <div className="flex items-center">
+                                        <Label htmlFor="password">Confirm Password {!confirmPassError &&
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <CircleAlert className='text-red-500 w-4' />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Password does not match</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        }</Label>
+                                    </div>
+                                    <div className='absolute bottom-[1px] right-1 rounded-tr-md rounded-br-md flex justify-center items-center  w-10 h-8 bg-white '>
+                                        {
+                                            showPassConfirm ?
+                                                <EyeOff onClick={() => setShowPassConfirm(false)} className='w-5 text-slate-600 cursor-pointer' />
+                                                :
+                                                <Eye onClick={() => setShowPassConfirm(true)} className='w-5 text-slate-600 cursor-pointer' />
+                                        }
+                                    </div>
+                                    <Input
+                                        className={`${!confirmPassError && 'border-red-500 '}`}
+                                        id="confirmPassword"
+                                        placeholder="Confirm Password"
+                                        type={`${showPassConfirm ? 'text' : 'password'}`}
+                                        required
+                                        value={formData.confirmPassword}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
                             </div>
-                        </form>
-                    </CardContent>
-                    <CardFooter className="flex-col gap-2 mt-3">
-                        <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900">
-                            Create Account
-                        </Button>
-                    </CardFooter>
+
+                        </CardContent>
+                        <CardFooter className="flex-col gap-2 mt-8">
+                            <Button type="submit" className="cursor-pointer w-full bg-blue-800 hover:bg-blue-900">
+                                Create Account
+                            </Button>
+                        </CardFooter>
+                    </form>
                     <div className="text-center my-3 text-sm">
-                        <span><span className="text-neutral-400">Already have an account ?</span> <Link href={'/authSignIn'}>Sign in instead</Link></span>
+                        <span><span className="text-neutral-400">Already have an account ?</span> <Link href={'/signin'}>Sign in instead</Link></span>
                     </div>
                 </Card>
                 <Ppts />
