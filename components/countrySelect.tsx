@@ -38,6 +38,7 @@ interface CountryOption {
 }
 
 interface CountrySelectProps {
+  err:boolean
   value: string | null;
   onChange: (selectedOption: CountryOption | null) => void;
 }
@@ -45,7 +46,7 @@ interface CountrySelectProps {
 const ITEM_HEIGHT = 40; // Approximate height of each CommandItem for FixedSizeList
 const MAX_LIST_HEIGHT = 300; // Max height for the virtualized list
 
-const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
+const CountrySelect: React.FC<CountrySelectProps> = ({err, value, onChange }) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -150,6 +151,7 @@ const CountrySelect: React.FC<CountrySelectProps> = ({ value, onChange }) => {
           aria-expanded={open}
           className={cn(
             "w-full justify-between",
+            err &&'border-red-500',
             !value && "text-muted-foreground" // This is the new line
           )}
         >

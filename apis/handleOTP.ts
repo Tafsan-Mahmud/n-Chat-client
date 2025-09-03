@@ -4,7 +4,7 @@ interface RegistrationFormData {
     email: string;
     password: string;
 }
-export const SigninAuth = async (data: RegistrationFormData, router: AppRouterInstance) => {
+export const OTPAuth = async (data: RegistrationFormData, router: AppRouterInstance) => {
     console.log(data, router)
     // try {
     //     const response = await fetch(`${uri}/merchant/register`, {

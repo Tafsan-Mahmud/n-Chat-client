@@ -1,1 +1,4 @@
-export  const uri = 'http://192.168.68.101:8000/api';
+export  const uriAuth = 'http://localhost:5000/api/auth';
+// Database
+//  username     | password
+//  nchatAdmin   | cMEnWAXhwqJC1m0W

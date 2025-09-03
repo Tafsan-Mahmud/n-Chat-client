@@ -40,7 +40,8 @@ export default function Register() {
     const router = useRouter()
     const [showPass, setShowPass] = useState(false);
     const [showPassConfirm, setShowPassConfirm] = useState(false);
-    const [confirmPassError, setConfirmPassError] = useState(true);
+    const [confirmPassError, setConfirmPassError] = useState(false);
+    const [countryError, setCountryError] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -58,21 +59,25 @@ export default function Register() {
         setFormData(prev => ({
             ...prev,
             country: selectedOption ? selectedOption.value : '',
-            callCode: selectedOption ? selectedOption.callCode : '',
         }));
+        setCountryError(false)
     }, []);
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData.password === formData.confirmPassword) {
-            setConfirmPassError(true)
-            const res = await registerAuth(formData, router)
-
-        } else {
+            if (formData.country === '') {
+                setCountryError(true)
+            } else {
+                setCountryError(false)
+                const res = await registerAuth(formData, router);
+            }
             setConfirmPassError(false)
+        } else {
+            setConfirmPassError(true)
         }
 
-    }, [formData,router]);
+    }, [formData, router]);
     const selectedCountryName = useMemo(() => formData.country, [formData.country]);
 
     return (
@@ -124,9 +129,19 @@ export default function Register() {
                                 </div>
                                 <div className="grid gap-2">
                                     <div className="flex items-center">
-                                        <Label htmlFor="country">Country</Label>
+                                        <Label htmlFor="country">Country {countryError &&
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <CircleAlert className='text-red-500 w-4' />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Please select your Country</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        }</Label>
                                     </div>
                                     <CountrySelect
+                                        err={countryError}
                                         value={selectedCountryName}
                                         onChange={handleCountryDropdownChange}
                                     />
@@ -154,7 +169,7 @@ export default function Register() {
                                 </div>
                                 <div className="relative grid gap-2">
                                     <div className="flex items-center">
-                                        <Label htmlFor="password">Confirm Password {!confirmPassError &&
+                                        <Label htmlFor="password">Confirm Password {confirmPassError &&
                                             <Tooltip>
                                                 <TooltipTrigger>
                                                     <CircleAlert className='text-red-500 w-4' />
@@ -174,7 +189,7 @@ export default function Register() {
                                         }
                                     </div>
                                     <Input
-                                        className={`${!confirmPassError && 'border-red-500 '}`}
+                                        className={`${confirmPassError && 'border-red-500 '}`}
                                         id="confirmPassword"
                                         placeholder="Confirm Password"
                                         type={`${showPassConfirm ? 'text' : 'password'}`}
