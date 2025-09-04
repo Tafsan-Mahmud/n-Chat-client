@@ -1,6 +1,6 @@
 // app/authCreateAcc/page.tsx
 "use client";
-
+import { toast } from "sonner"
 import React, { useState, useCallback, useMemo } from 'react';
 import logo from '@/public/images/logo/short-logo.png'
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ import Link from "next/link";
 import Ppts from "@/components/ppts";
 import Image from 'next/image';
 import Multibg from '@/components/multibg';
-import { CircleAlert, Eye, EyeOff } from 'lucide-react';
+import { CircleAlert, Eye, EyeOff, Loader2Icon } from 'lucide-react';
 import { registerAuth } from '@/apis/handleRegister';
 import { useRouter } from 'next/navigation';
 
@@ -35,9 +35,9 @@ interface SelectedCountryOption {
     callCode: string; // This is the CALLING CODE (e.g., "1")
     id: string; // The unique ID
 }
-
 export default function Register() {
-    const router = useRouter()
+    const router = useRouter();
+    const [isClicked, setIsClicked] = useState(false);
     const [showPass, setShowPass] = useState(false);
     const [showPassConfirm, setShowPassConfirm] = useState(false);
     const [confirmPassError, setConfirmPassError] = useState(false);
@@ -65,14 +65,25 @@ export default function Register() {
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
+
         if (formData.password === formData.confirmPassword) {
+            setConfirmPassError(false)
             if (formData.country === '') {
                 setCountryError(true)
             } else {
+                setIsClicked(true)
                 setCountryError(false)
                 const res = await registerAuth(formData, router);
+                if (res && typeof res === 'object' && 'status' in res && 'message' in res) {
+                    setIsClicked(false);
+                    
+                    toast(res.status, {
+                        description: res.message,
+                    });
+                }
+
             }
-            setConfirmPassError(false)
+
         } else {
             setConfirmPassError(true)
         }
@@ -202,8 +213,11 @@ export default function Register() {
 
                         </CardContent>
                         <CardFooter className="flex-col gap-2 mt-8">
-                            <Button type="submit" className="cursor-pointer w-full bg-blue-800 hover:bg-blue-900">
-                                Create Account
+                            <Button disabled={isClicked} type="submit" className="cursor-pointer w-full bg-blue-800 hover:bg-blue-900">
+                                {
+                                    isClicked ? <><Loader2Icon className="animate-spin" />
+                                        Please wait..</> : 'Create Account'
+                                }
                             </Button>
                         </CardFooter>
                     </form>

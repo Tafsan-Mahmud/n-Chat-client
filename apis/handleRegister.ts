@@ -1,5 +1,6 @@
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { uriAuth } from '@/public/apiuri/uri'
+import { maskEmail } from '@/util/maskEmail';
 interface RegistrationFormData {
     name: string;
     email: string;
@@ -7,8 +8,16 @@ interface RegistrationFormData {
     password: string;
     confirmPassword: string;
 }
-export const registerAuth = async (data: RegistrationFormData, router:AppRouterInstance) => {
-    console.log(data,router)
+interface AuthResponse {
+    status: string;
+    message: string;
+}
+interface AuthResponseSuccess {
+    status: string;
+    message: string;
+    email: string;
+}
+export const registerAuth = async (data: RegistrationFormData, router: AppRouterInstance) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...dataToSend } = data;
     try {
@@ -21,13 +30,33 @@ export const registerAuth = async (data: RegistrationFormData, router:AppRouterI
         });
         const responseData = await response.json();
         if (!response.ok) {
-            return (responseData.message || 'Network response was not ok');
+            if (responseData.redirect) {
+                const verify : string | AuthResponse = {
+                    status: 'VERIFY',
+                    message: responseData.message
+                }
+                router.push(responseData.redirect)
+                return verify;
+            }
+            const err : string | AuthResponse = {
+                status: 'ERROR',
+                message: responseData.message
+            }
+            return (err || 'Network response was not ok');
         }
-
         if (responseData) {
-            alert(`${responseData.message}, ${responseData.email}`)
-        } 
-    }catch (error) {
+            const success : string | AuthResponseSuccess = {
+                status: 'SUCCESS',
+                message: responseData.message,
+                email:responseData.email
+            }
+            const mask = maskEmail(responseData.email)
+            sessionStorage.setItem('resusrmail',responseData.email)
+            sessionStorage.setItem('resusrmailmsk',mask)
+            sessionStorage.setItem('resusrtkn',responseData.token)
+            return success
+        }
+    } catch (error) {
         // console.error('An error occurred during registration:', error);
         if (error instanceof Error) {
             return error.message;

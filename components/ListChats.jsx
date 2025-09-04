@@ -84,6 +84,7 @@ const ListChats = (props) => {
                                 <Image
                                     alt='User Avatar'
                                     fill
+                                    sizes='60px'
                                     className='border rounded-full object-cover'
                                     src={user.image_uri}
                                 />
