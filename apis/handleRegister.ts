@@ -32,36 +32,46 @@ export const registerAuth = async (data: RegistrationFormData, router: AppRouter
         if (!response.ok) {
             if (responseData.redirect) {
                 const verify : string | AuthResponse = {
-                    status: 'VERIFY',
+                    status: 'VERIFY!',
                     message: responseData.message
                 }
                 router.push(responseData.redirect)
                 return verify;
             }
             const err : string | AuthResponse = {
-                status: 'ERROR',
+                status: 'ERROR!',
                 message: responseData.message
             }
             return (err || 'Network response was not ok');
         }
         if (responseData) {
             const success : string | AuthResponseSuccess = {
-                status: 'SUCCESS',
+                status: responseData.status,
                 message: responseData.message,
-                email:responseData.email
+                email:responseData.email,
             }
             const mask = maskEmail(responseData.email)
             sessionStorage.setItem('resusrmail',responseData.email)
             sessionStorage.setItem('resusrmailmsk',mask)
             sessionStorage.setItem('resusrtkn',responseData.token)
-            return success
+            router.push(responseData.redirect)
+            return success;
         }
     } catch (error) {
+        
         // console.error('An error occurred during registration:', error);
         if (error instanceof Error) {
-            return error.message;
+            const err : string | AuthResponse = {
+                status: 'ERROR!',
+                message: error.message || 'An error occurred during registration'
+            }
+            return err;
         } else {
-            return 'An unknown error occurred.';
+            const err : string | AuthResponse = {
+                status: 'ERROR!',
+                message: 'An unknown error occurred.'
+            }
+            return err;
         }
     }
 }

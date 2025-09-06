@@ -75,15 +75,40 @@ export default function Register() {
                 setCountryError(false)
                 const res = await registerAuth(formData, router);
                 if (res && typeof res === 'object' && 'status' in res && 'message' in res) {
+                    if (res.status === 'SUCCESS') {
+                        setFormData({
+                            name: '',
+                            email: '',
+                            country: '',
+                            password: '',
+                            confirmPassword: '',
+                        })
+                    }
                     setIsClicked(false);
-                    
-                    toast(res.status, {
-                        description: res.message,
-                    });
+                    if (res.status === 'VERIFY!') {
+                        toast(res.status, {
+                            style: {
+                                // backgroundColor: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`,
+                                border: "2px solid #22c55e",
+                                color: "#22c55e"
+                            },
+                            description: res.message,
+                            richColors: true,
+                        })
+                    } else {
+                        toast(res.status, {
+                            style: {
+                                // backgroundColor: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`,
+                                // border: `1px solid ${res.status === 'SUCCESS' ? "#22c55e " : "#f43f5e"}`,
+                                color: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`
+                            },
+                            description: res.message,
+                            richColors: true,
+                        })
+                    }
+
                 }
-
             }
-
         } else {
             setConfirmPassError(true)
         }
