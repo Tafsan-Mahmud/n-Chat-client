@@ -89,7 +89,6 @@ export default function Register() {
                         toast(res.status, {
                             style: {
                                 // backgroundColor: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`,
-                                border: "2px solid #22c55e",
                                 color: "#22c55e"
                             },
                             description: res.message,

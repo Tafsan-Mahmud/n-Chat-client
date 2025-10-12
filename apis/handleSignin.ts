@@ -1,41 +1,48 @@
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
-import { uri } from '@/public/apiuri/uri';
+import { uriAuth } from '@/public/apiuri/uri';
 interface RegistrationFormData {
     email: string;
     password: string;
 }
+interface AuthResponse {
+    status: string;
+    message: string;
+}
 export const SigninAuth = async (data: RegistrationFormData, router: AppRouterInstance) => {
     console.log(data, router)
-    // try {
-    //     const response = await fetch(`${uri}/merchant/register`, {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify(data),
-    //     });
+    try {
+        const response = await fetch(`${uriAuth}/signin`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-    //     const responseData = await response.json();
-    //     if (!response.ok) {
-    //         return (responseData.message || 'Network response was not ok');
-    //     }
+        const responseData = await response.json();
+        if (!response.ok) {
+            return (responseData.message || 'Network response was not ok');
+        }
+        if (responseData.status === 'SUCCESS') {
+               return responseData;
+        }
+    } catch (error) {
 
-    //     if (responseData.status === 'SUCCESS') {
-    //         if (responseData.action === "showemailotp") {
-    //             sessionStorage.setItem('resdt', responseData.data)
-    //             sessionStorage.setItem('resml', responseData.email)
-    //             router.push(`/verify-account?redirection=otp_sending_registration_${responseData.email} `);
-    //         }
-    //     } else {
-    //         return responseData;
-    //     }
-    // } catch (error) {
-    //     // console.error('An error occurred during registration:', error);
-    //     if (error instanceof Error) {
-    //         return error.message;
-    //     } else {
-    //         return 'An unknown error occurred.';
-    //     }
-    // }
+        // console.error('An error occurred during registration:', error);
+        if (error instanceof Error) {
+            const err: string | AuthResponse = {
+                status: 'ERROR!',
+                message: error.message || 'An error occurred during verification'
+            }
+            return err;
+        } else {
+            const err: string | AuthResponse = {
+                status: 'ERROR!',
+                message: 'An unknown error occurred.'
+            }
+            return err;
+        }
+    }
 }
 

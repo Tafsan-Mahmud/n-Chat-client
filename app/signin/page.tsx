@@ -17,12 +17,13 @@ import Image from "next/image"
 import Multibg from "@/components/multibg"
 import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2Icon } from "lucide-react"
 import { SigninAuth } from "@/apis/handleSignin"
 
 export default function Login() {
     const router = useRouter();
     const [showPass, setShowPass] = useState(false);
+    const [isClicked, setIsClicked] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -31,11 +32,19 @@ export default function Login() {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
     }, []);
+
+
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsClicked(true)
         const res = await SigninAuth(formData, router);
+        if(res){
+            setIsClicked(false)
+        }
+        console.log(res)
 
     }, [formData, router]);
+
     return (
         <div className="min-h-screen relative flex flex-col">
             <Multibg />
@@ -106,8 +115,11 @@ export default function Login() {
                         </CardContent>
                         {/* Card Footer (Button) */}
                         <CardFooter className="flex-col gap-2 mt-3">
-                            <Button type="submit" className="w-full cursor-pointer my-3 bg-blue-800 hover:bg-blue-900">
-                                Sign In
+                            <Button type="submit" disabled={isClicked} className="w-full cursor-pointer my-3 bg-blue-800 hover:bg-blue-900">
+                                {
+                                    isClicked ? <><Loader2Icon className="animate-spin" />
+                                        Please wait..</> : 'Sign In'
+                                }
                             </Button>
                         </CardFooter>
                         {/* "New User?" Section */}

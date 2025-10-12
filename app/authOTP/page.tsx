@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Ppts from "@/components/ppts";
 import { Button } from "@/components/ui/button";
 import logo from '@/public/images/logo/short-logo.png'
@@ -21,11 +21,22 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 import Multibg from "@/components/multibg";
+import { OTPAuth } from "@/apis/handleOTP";
+import { useRouter } from "next/navigation";
 
 export default function AuthOTP() {
     const otpInputRef = useRef<HTMLInputElement>(null);
+    const [maskemail, setMaskEmail] = useState('')
+    const [email, setEmail] = useState('')
+    const [otpValue, setOtpValue] = useState("");
+    const [otpError, setOtpError] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
+        const mskeml = sessionStorage.getItem('resusrmailmsk') || '';
+        const eml = sessionStorage.getItem('resusrmail')||'';
+        setMaskEmail(mskeml);
+        setEmail(eml)
         const timer = setTimeout(() => {
             if (otpInputRef.current) {
                 otpInputRef.current.focus();
@@ -33,6 +44,29 @@ export default function AuthOTP() {
         }, 100);
         return () => clearTimeout(timer);
     }, []);
+
+    const handleOtpChange = (value: string) => {
+        const numericValue = value.replace(/[^0-9]/g, '');
+        setOtpValue(numericValue);
+    };
+
+
+    const handleVerify = async () => {
+        if (otpValue.length === 6) {
+            setOtpError(false);
+            
+            const data = {
+                otp: otpValue,
+                email: email
+            };
+
+            const response = await OTPAuth(data, router);
+            console.log(response);
+
+        } else {
+            setOtpError(true);
+        }
+    };
 
     return (
         <div className="min-h-screen relative flex flex-col">
@@ -60,20 +94,20 @@ export default function AuthOTP() {
                         <RadioGroup defaultValue="option-one">
                             <div className="flex items-center space-x-3">
                                 <RadioGroupItem value="option-one" id="option-one" />
-                                <Label className="text-muted-foreground" htmlFor="option-one">gsmclas*******@gmail.com</Label>
+                                <Label className="text-muted-foreground" htmlFor="option-one">{maskemail}</Label>
                             </div>
                         </RadioGroup>
                         <div className="flex justify-center mt-10 mb-5">
                             <Label className="text-neutral-600" htmlFor="tabs-demo-current">Please Enter 6 Digit OTP</Label>
                         </div>
                         <div className="mt-2" >
-                            {/* Attach the ref to the main InputOTP component for programmatic focus.
-                                Apply w-full and justify-between to ensure it spans the width and spaces slots. */}
                             <InputOTP
                                 maxLength={6}
                                 className="w-full justify-between"
                                 id="tabs-demo-current"
                                 ref={otpInputRef}
+                                value={otpValue}
+                                onChange={handleOtpChange} 
                             >
                                 <InputOTPGroup className="w-full justify-between">
                                     <InputOTPSlot className="rounded-sm w-12 h-12 text-lg" index={0} />
@@ -84,10 +118,13 @@ export default function AuthOTP() {
                                     <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={5} />
                                 </InputOTPGroup>
                             </InputOTP>
+                            {
+                                otpError && <p className="text-red-600 text-sm mt-3">Please enter the complete 6-digit OTP!</p>
+                            }
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-2 mt-3">
-                        <Button type="submit" className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
+                        <Button onClick={handleVerify} className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
                             Verify
                         </Button>
                         <div className="flex justify-start w-full">
