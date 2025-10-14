@@ -5,8 +5,8 @@ interface AuthResponse {
     message: string;
 }
 interface otpData {
-    otp: string;  // Required at the top level
-    email: string; // Required at the top level
+    otp: string;
+    email: string;
 }
 export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
     try {
@@ -18,19 +18,13 @@ export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
             },
             body: JSON.stringify(data),
         });
-
         const responseData = await response.json();
         if (!response.ok) {
-            return (responseData.message || 'Network response was not ok');
+            return (responseData || 'Network response was not ok');
+        }else{
+            return responseData;
         }
-
-        if (responseData.status === 'SUCCESS') {
-            console.log(responseData)
-        //    return responseData;
-        } 
     }catch (error) {
-        
-        // console.error('An error occurred during registration:', error);
         if (error instanceof Error) {
             const err : string | AuthResponse = {
                 status: 'ERROR!',

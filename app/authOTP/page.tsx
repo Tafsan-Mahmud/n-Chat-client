@@ -23,6 +23,8 @@ import Image from "next/image";
 import Multibg from "@/components/multibg";
 import { OTPAuth } from "@/apis/handleOTP";
 import { useRouter } from "next/navigation";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AuthOTP() {
     const otpInputRef = useRef<HTMLInputElement>(null);
@@ -30,11 +32,12 @@ export default function AuthOTP() {
     const [email, setEmail] = useState('')
     const [otpValue, setOtpValue] = useState("");
     const [otpError, setOtpError] = useState(false);
+    const [isClicked, setIsClicked] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
         const mskeml = sessionStorage.getItem('resusrmailmsk') || '';
-        const eml = sessionStorage.getItem('resusrmail')||'';
+        const eml = sessionStorage.getItem('resusrmail') || '';
         setMaskEmail(mskeml);
         setEmail(eml)
         const timer = setTimeout(() => {
@@ -54,15 +57,37 @@ export default function AuthOTP() {
     const handleVerify = async () => {
         if (otpValue.length === 6) {
             setOtpError(false);
-            
+            setIsClicked(true)
             const data = {
                 otp: otpValue,
-                email: email
+                email: email,
             };
-
             const response = await OTPAuth(data, router);
-            console.log(response);
-
+            if (response.status === 'SUCCESS') {
+                const { _id, email, name, active_Status, profile_image, title, bio } = response;
+                const user = { _id, email, name, active_Status, profile_image, title, bio, }
+                setIsClicked(false)
+                toast(response.status, {
+                    style: {
+                        color: `${response.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`
+                    },
+                    description: response.message,
+                    richColors: true,
+                });
+                sessionStorage.setItem('user', JSON.stringify(user))
+                sessionStorage.removeItem('resusrmail')
+                sessionStorage.removeItem('resusrmailmsk')
+                router.push('/chats');
+            } else {
+                setIsClicked(false)
+                toast(response.status, {
+                    style: {
+                        color: `${response.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`
+                    },
+                    description: response.message,
+                    richColors: true,
+                });
+            }
         } else {
             setOtpError(true);
         }
@@ -107,7 +132,7 @@ export default function AuthOTP() {
                                 id="tabs-demo-current"
                                 ref={otpInputRef}
                                 value={otpValue}
-                                onChange={handleOtpChange} 
+                                onChange={handleOtpChange}
                             >
                                 <InputOTPGroup className="w-full justify-between">
                                     <InputOTPSlot className="rounded-sm w-12 h-12 text-lg" index={0} />
@@ -124,8 +149,11 @@ export default function AuthOTP() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-2 mt-3">
-                        <Button onClick={handleVerify} className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
-                            Verify
+                        <Button onClick={handleVerify} disabled={isClicked} className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
+                            {
+                                isClicked ? <><Loader2Icon className="animate-spin" />
+                                    Please wait..</> : 'Verify'
+                            }
                         </Button>
                         <div className="flex justify-start w-full">
                             <p className='mt-3 cursor-pointer underline text-slate-500'>Resend OTP</p>

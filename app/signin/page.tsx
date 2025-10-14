@@ -38,10 +38,10 @@ export default function Login() {
         e.preventDefault();
         setIsClicked(true)
         const res = await SigninAuth(formData, router);
-        if(res){
+        if (res) {
             setIsClicked(false)
+            console.log(res)
         }
-        console.log(res)
 
     }, [formData, router]);
 

@@ -93,7 +93,7 @@ export default function Register() {
                             },
                             description: res.message,
                             richColors: true,
-                        })
+                        });
                     } else {
                         toast(res.status, {
                             style: {
@@ -103,7 +103,7 @@ export default function Register() {
                             },
                             description: res.message,
                             richColors: true,
-                        })
+                        });
                     }
 
                 }
