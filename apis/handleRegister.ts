@@ -45,7 +45,8 @@ export const registerAuth = async (data: RegistrationFormData, router: AppRouter
             return (err || 'Network response was not ok');
         }
         if (responseData) {
-            const success : string | AuthResponseSuccess = {
+            if(responseData.status === 'SUCCESS'){
+                 const success : string | AuthResponseSuccess = {
                 status: responseData.status,
                 message: responseData.message,
                 email:responseData.email,
@@ -56,6 +57,7 @@ export const registerAuth = async (data: RegistrationFormData, router: AppRouter
             sessionStorage.setItem('resusrtkn',responseData.token)
             router.push(responseData.redirect)
             return success;
+            }
         }
     } catch (error) {
         

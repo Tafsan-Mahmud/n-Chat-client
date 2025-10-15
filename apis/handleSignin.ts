@@ -1,5 +1,7 @@
+import { redirect } from 'next/navigation';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { uriAuth } from '@/public/apiuri/uri';
+import { maskEmail } from '@/util/maskEmail';
 interface signinData {
     email: string;
     password: string;
@@ -21,11 +23,23 @@ export const SigninAuth = async (data: signinData, router: AppRouterInstance) =>
         });
 
         const responseData = await response.json();
+
         if (!response.ok) {
-            return (responseData.message || 'Network response was not ok');
-        }
-        if (responseData.status === 'SUCCESS') {
-               return responseData;
+            if (responseData.status === 'PROCESS!') {
+                router.push(responseData.redirect);
+                return responseData;
+            } else {
+                return (responseData || 'Network response was not ok');
+            }
+        } else {
+            if (responseData.status === 'SUCCESS') {
+                const mask = maskEmail(responseData.email)
+                sessionStorage.setItem('resusrmail', responseData.email)
+                sessionStorage.setItem('resusrmailmsk', mask)
+                sessionStorage.setItem('resusrtkn', responseData.secret)
+                router.push(responseData.redirect)
+                return responseData;
+            }
         }
     } catch (error) {
         if (error instanceof Error) {

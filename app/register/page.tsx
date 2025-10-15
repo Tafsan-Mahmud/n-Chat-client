@@ -88,7 +88,7 @@ export default function Register() {
                     if (res.status === 'VERIFY!') {
                         toast(res.status, {
                             style: {
-                                // backgroundColor: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`,
+                             
                                 color: "#22c55e"
                             },
                             description: res.message,
@@ -97,8 +97,6 @@ export default function Register() {
                     } else {
                         toast(res.status, {
                             style: {
-                                // backgroundColor: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`,
-                                // border: `1px solid ${res.status === 'SUCCESS' ? "#22c55e " : "#f43f5e"}`,
                                 color: `${res.status === 'SUCCESS' ? "#22c55e" : "#f43f5e"}`
                             },
                             description: res.message,

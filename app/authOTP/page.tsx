@@ -34,6 +34,7 @@ export default function AuthOTP() {
     const [otpError, setOtpError] = useState(false);
     const [isClicked, setIsClicked] = useState(false);
     const router = useRouter();
+    const x = email ? false : true;
 
     useEffect(() => {
         const mskeml = sessionStorage.getItem('resusrmailmsk') || '';
@@ -64,8 +65,6 @@ export default function AuthOTP() {
             };
             const response = await OTPAuth(data, router);
             if (response.status === 'SUCCESS') {
-                const { _id, email, name, active_Status, profile_image, title, bio } = response;
-                const user = { _id, email, name, active_Status, profile_image, title, bio, }
                 setIsClicked(false)
                 toast(response.status, {
                     style: {
@@ -74,9 +73,9 @@ export default function AuthOTP() {
                     description: response.message,
                     richColors: true,
                 });
-                sessionStorage.setItem('user', JSON.stringify(user))
-                sessionStorage.removeItem('resusrmail')
-                sessionStorage.removeItem('resusrmailmsk')
+                const { _id, email, name, active_Status, profile_image, title, bio } = response;
+                const user = { _id, email, name, active_Status, profile_image, title, bio, }
+                sessionStorage.setItem('user', JSON.stringify(user));
                 router.push('/chats');
             } else {
                 setIsClicked(false)
@@ -149,7 +148,7 @@ export default function AuthOTP() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex-col gap-2 mt-3">
-                        <Button onClick={handleVerify} disabled={isClicked} className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
+                        <Button onClick={handleVerify} disabled={isClicked || x} className="w-full cursor-pointer bg-blue-800 hover:bg-blue-900">
                             {
                                 isClicked ? <><Loader2Icon className="animate-spin" />
                                     Please wait..</> : 'Verify'

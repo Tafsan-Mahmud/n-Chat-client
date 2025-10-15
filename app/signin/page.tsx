@@ -19,6 +19,7 @@ import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Loader2Icon } from "lucide-react"
 import { SigninAuth } from "@/apis/handleSignin"
+import { toast } from "sonner"
 
 export default function Login() {
     const router = useRouter();
@@ -38,9 +39,35 @@ export default function Login() {
         e.preventDefault();
         setIsClicked(true)
         const res = await SigninAuth(formData, router);
-        if (res) {
+        if (res.status === 'SUCCESS') {
             setIsClicked(false)
-            console.log(res)
+            toast(res.status, {
+                style: {
+                    color: "#22c55e"
+                },
+                description: res.message,
+                richColors: true,
+            });
+        }
+        if (res.status === "PROCESS!") {
+            setIsClicked(false)
+            toast(res.status, {
+                style: {
+                    color: "#c5a222ff"
+                },
+                description: res.message,
+                richColors: true,
+            });
+        }
+        if (res.status === 'ERROR!') {
+            setIsClicked(false)
+            toast(res.status, {
+                style: {
+                    color: "#f43f5e"
+                },
+                description: res.message,
+                richColors: true,
+            });
         }
 
     }, [formData, router]);

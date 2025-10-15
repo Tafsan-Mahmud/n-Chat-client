@@ -20,19 +20,32 @@ export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
         });
         const responseData = await response.json();
         if (!response.ok) {
-            return (responseData || 'Network response was not ok');
-        }else{
-            return responseData;
+            if (responseData.redirect === '/register') {
+                sessionStorage.removeItem('resusrmail');
+                sessionStorage.removeItem('resusrmailmsk');
+                sessionStorage.removeItem('resusrtkn');
+                router.push(responseData.redirect)
+                return responseData;
+            } else {
+                return (responseData || 'Network response was not ok');
+            }
+        } else {
+            if (responseData.status === 'SUCCESS') {
+                sessionStorage.removeItem('resusrmail');
+                sessionStorage.removeItem('resusrmailmsk');
+                sessionStorage.removeItem('resusrtkn');
+                return responseData;
+            }
         }
-    }catch (error) {
+    } catch (error) {
         if (error instanceof Error) {
-            const err : string | AuthResponse = {
+            const err: string | AuthResponse = {
                 status: 'ERROR!',
                 message: error.message || 'An error occurred during verification'
             }
             return err;
         } else {
-            const err : string | AuthResponse = {
+            const err: string | AuthResponse = {
                 status: 'ERROR!',
                 message: 'An unknown error occurred.'
             }
