@@ -1,57 +1,91 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// 1. Define the protected and public routes based on your file structure
+// 1. Define the routes
 const PROTECTED_ROUTES = ['/chats', '/accountSetting'];
 const AUTH_ROUTES = ['/signin', '/register', '/authOTP', '/forgotPass'];
 
 // 2. Main Middleware Function
-export function middleware(request: NextRequest) {
-  // Get the 'token' cookie set by your Express backend
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
-  
-  // Get the path the user is currently trying to access
   const pathname = request.nextUrl.pathname;
 
-  // --- A. Check if the user is trying to access a Protected Route (e.g., /chats) ---
+  // --- A. Check if the user is trying to access a Protected Route ---
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    // If the cookie/token is missing, redirect them to the sign-in page
+
+    // 1. Presence Check (Quick fail if token is missing)
     if (!token) {
       const url = request.nextUrl.clone();
       url.pathname = '/signin';
       return NextResponse.redirect(url);
     }
-    // If token exists, allow access
-    return NextResponse.next();
-  }
 
-  // --- B. Check if the user is trying to access an Auth Route (e.g., /signin) ---
-  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
-    // If the token exists, they shouldn't be on the sign-in/register page, so redirect them to the main app area
-    if (token) {
+    // 2. Validation Check (CRITICAL SECURITY STEP)
+    // NOTE: Use the absolute URL for the fetch call
+    const validationUrl = `${request.nextUrl.origin}/api/auth/validate-token`;
+
+    // IMPORTANT: We must forward the cookies received from the client to the backend API
+    const response = await fetch(validationUrl, {
+      method: 'GET',
+      headers: {
+        'Cookie': `token=${token}`,
+      },
+    });
+
+    // If the backend returns anything other than 200, the token is BAD (forged/expired).
+    if (response.status !== 200) {
+      console.log("Token validation failed in backend. Redirecting to signin and clearing cookie.");
       const url = request.nextUrl.clone();
-      url.pathname = '/chats'; // Redirect to the main authenticated area
-      return NextResponse.redirect(url);
+      url.pathname = '/signin';
+
+      // Clear the bad token cookie before redirecting
+      const redirectResponse = NextResponse.redirect(url);
+      redirectResponse.cookies.delete('token');
+      return redirectResponse;
     }
-    // If token is missing, allow access to auth pages
+
+    // If response.status is 200, the token is valid.
     return NextResponse.next();
   }
 
-  // Allow access to all other paths (e.g., '/', '/api', '/components', etc.)
+  // --- B. Check if the user is trying to access an Auth Route ---
+  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
+    if (token) {
+      const validationUrl = `${request.nextUrl.origin}/api/auth/validate-token`;
+      const response = await fetch(validationUrl, {
+        method: 'GET',
+        headers: { 'Cookie': `token=${token}` },
+      });
+
+      // If the token is valid (200), redirect them away from signin/register pages.
+      if (response.status === 200) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/chats';
+        return NextResponse.redirect(url);
+      }
+
+//  Token is present but BAD (e.g., 401/403). Clear the bad cookie.
+      if (response.status !== 200) {
+        console.log("Auth page visited with invalid token. Clearing cookie.");
+
+        // Allow access to the auth page, but remove the bad token first.
+        const nextResponse = NextResponse.next();
+        nextResponse.cookies.delete('token');
+        return nextResponse;
+      }
+    }
+    // If no token exists, or if the bad token was just cleared above, allow access.
+    return NextResponse.next();
+  }
+
+  // Allow access to all other paths
   return NextResponse.next();
 }
 
 // 3. Define the matcher configuration
-// This runs the middleware only on the necessary paths to avoid slowing down static assets.
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for:
-     * - API routes (/api/...)
-     * - Next.js static files (_next/static/...)
-     * - Images and other assets (.*\\.png$, etc.)
-     * - Root files like favicon.ico, etc.
-     */
-    '/((?!api|_next/static|_next/image|images|favicon.ico|.*\\.png$).*)',
+    // Matches all request paths except for files, static assets, and APIs (excluding /api/auth)
+    '/((?!api/(?!auth)|_next/static|_next/image|images|favicon.ico|.*\\.png$).*)',
   ],
 };

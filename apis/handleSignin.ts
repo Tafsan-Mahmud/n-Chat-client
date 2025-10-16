@@ -11,9 +11,9 @@ interface AuthResponse {
     message: string;
 }
 export const SigninAuth = async (data: signinData, router: AppRouterInstance) => {
-    // console.log(data, router)
+    // console.log(data)
     try {
-        const response = await fetch(`${uriAuth}/signin`, {
+        const response = await fetch(`${uriAuth}/login`, {
             method: 'POST',
             credentials: 'include',
             headers: {

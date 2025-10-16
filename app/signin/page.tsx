@@ -39,6 +39,7 @@ export default function Login() {
         e.preventDefault();
         setIsClicked(true)
         const res = await SigninAuth(formData, router);
+        // console.log(res);
         if (res.status === 'SUCCESS') {
             setIsClicked(false)
             toast(res.status, {
