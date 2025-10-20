@@ -24,13 +24,13 @@ export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
                 sessionStorage.removeItem('resusrmail');
                 sessionStorage.removeItem('resusrmailmsk');
                 sessionStorage.removeItem('resusrtkn');
-                router.push(responseData.redirect)
+                router.push(responseData.redirect);
                 return responseData;
             } else {
                 return (responseData || 'Network response was not ok');
             }
         } else {
-            if (responseData.status === 'SUCCESS') {
+            if (responseData.status === 'SUCCESS'){
                 sessionStorage.removeItem('resusrmail');
                 sessionStorage.removeItem('resusrmailmsk');
                 sessionStorage.removeItem('resusrtkn');
