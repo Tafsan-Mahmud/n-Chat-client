@@ -76,6 +76,7 @@ export default function AuthOTP() {
                     description: response.message,
                     richColors: true,
                 });
+                
                 const { _id, email, name, active_Status, profile_image, title, bio } = response;
                 const user = { _id, email, name, active_Status, profile_image, title, bio };
                 sessionStorage.setItem('user', JSON.stringify(user));

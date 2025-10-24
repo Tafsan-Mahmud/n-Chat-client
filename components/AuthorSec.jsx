@@ -1,3 +1,4 @@
+'use client'
 import React from 'react';
 import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu } from 'lucide-react';
 import Image from 'next/image';
@@ -23,9 +24,12 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAppSelector } from '@/store';
 const im = 'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj';
 const AuthorSec = () => {
     const router = useRouter();
+
+const user = useAppSelector((s)=>s.user?.data);
     return (
         <div>
             {/* <h4 className='px-8 py-3 text-xl font-semibold text-blue-800 text-center border-b mb-2'>NChat</h4> */}
@@ -40,8 +44,12 @@ const AuthorSec = () => {
                 </div>
                 <div className='flex w-full justify-between'>
                     <div>
-                        <p className='text-xl font-semibold text-slate-700'>Abu Hasnat Nobin<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
-                        <p className='text-md text-slate-600'>Senior Developer</p>
+                        <p className='text-xl font-semibold text-slate-700'>{
+                            !user ? 'xxxxxxxx' : user?.name
+                            }<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
+                        <p className='text-md text-slate-600'>{
+                            !user ? 'xxxxxxxx' : user?.email
+                            }</p>
                     </div>
                     <div className='flex items-center border-l pl-2'>
                         <Sheet>
