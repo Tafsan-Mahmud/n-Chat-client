@@ -26,6 +26,8 @@ import { OTPAuth } from "@/apis/handleOTP";
 import { useRouter } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { useAppDispatch } from "@/store";
+import { setUser } from "@/store/userSlice";
 
 export default function AuthOTP() {
     const otpInputRef = useRef<HTMLInputElement>(null);
@@ -37,7 +39,7 @@ export default function AuthOTP() {
     const [uiLoader, setUiLoader] = useState(false);
     const router = useRouter();
     const x = email ? false : true;
-
+    const dispatch = useAppDispatch();
     useEffect(() => {
         const mskeml = sessionStorage.getItem('resusrmailmsk') || '';
         const eml = sessionStorage.getItem('resusrmail') || '';
@@ -79,8 +81,7 @@ export default function AuthOTP() {
                 
                 const { _id, email, name, active_Status, profile_image, title, bio } = response;
                 const user = { _id, email, name, active_Status, profile_image, title, bio };
-                sessionStorage.setItem('user', JSON.stringify(user));
-                console.log("Authentication successful. Delaying redirect to ensure token cookie is set...");
+                dispatch(setUser(user));
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 router.push('/chats');
             } else {

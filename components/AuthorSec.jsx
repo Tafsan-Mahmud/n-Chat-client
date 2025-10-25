@@ -1,6 +1,6 @@
 'use client'
-import React from 'react';
-import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu, LogOut, Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import {
     Sheet,
@@ -18,18 +18,43 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-
+import { logOut } from "@/apis/logOut";
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { toast } from 'sonner';
 const im = 'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj';
 const AuthorSec = () => {
     const router = useRouter();
+    const user = useAppSelector((s) => s.user?.data);
+    const dispatch = useAppDispatch();
+    const [loading, setLoading] = useState(false);
 
-const user = useAppSelector((s)=>s.user?.data);
+    const handleLogout = async () => {
+        if (loading) return;
+        setLoading(true);
+
+        const res = await logOut();
+
+        if (res.success) {
+            toast.success("Logout Successful", {
+                description: res.message,
+            });
+            setTimeout(() => {
+                setLoading(false)
+                router.push("/signin")
+            }, 700);
+        } else {
+            setLoading(false);
+            toast.error("Logout Failed", {
+                description: res.message || "Something went wrong.",
+            });
+        }
+    };
+
     return (
         <div>
             {/* <h4 className='px-8 py-3 text-xl font-semibold text-blue-800 text-center border-b mb-2'>NChat</h4> */}
@@ -46,10 +71,10 @@ const user = useAppSelector((s)=>s.user?.data);
                     <div>
                         <p className='text-xl font-semibold text-slate-700'>{
                             !user ? 'xxxxxxxx' : user?.name
-                            }<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
+                        }<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
                         <p className='text-md text-slate-600'>{
                             !user ? 'xxxxxxxx' : user?.email
-                            }</p>
+                        }</p>
                     </div>
                     <div className='flex items-center border-l pl-2'>
                         <Sheet>
@@ -161,11 +186,16 @@ const user = useAppSelector((s)=>s.user?.data);
                                         <h5 className='text-lg font-semibold text-slate-600 mt-2 mb-2'>System</h5>
                                         <div className='rounded-lg p-2 bg-slate-50'>
                                             <div className='w-full '>
-
+                                                <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
+                                                    <div><Cpu /></div>
+                                                    <p className='w-full pb-3 border-b font-semibold'>About</p>
+                                                </div>
+                                            </div>
+                                            <div className='w-full '>
                                                 <DialogTrigger asChild>
                                                     <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
-                                                        <div><Cpu /></div>
-                                                        <p className='w-full pb-3 border-b font-semibold'>About</p>
+                                                        <div className='text-red-500'><LogOut /></div>
+                                                        <p className='text-red-500 w-full pb-3 border-b font-semibold'>Logout</p>
                                                     </div>
                                                 </DialogTrigger>
 
@@ -174,17 +204,20 @@ const user = useAppSelector((s)=>s.user?.data);
 
                                         <DialogContent className="sm:max-w-[425px]">
                                             <DialogHeader>
-                                                <DialogTitle>Edit profile</DialogTitle>
+                                                <DialogTitle>Are you Sure?</DialogTitle>
                                                 <DialogDescription>
-                                                    Make changes to your profile here. Click save when you&apos;re
-                                                    done.
+                                                    Do you want to logout from 'NChat'. if yes then click 'Logout' button, if not then click 'cancle'
                                                 </DialogDescription>
                                             </DialogHeader>
                                             <DialogFooter>
                                                 <DialogClose asChild>
                                                     <Button variant="outline">Cancel</Button>
                                                 </DialogClose>
-                                                <Button >Save changes</Button>
+                                                <Button onClick={handleLogout} disabled={loading} className='bg-red-500 text-gray-100 hover:bg-red-600 cursor-pointer'>
+                                                    {
+                                                        loading ? <><Loader2Icon className="animate-spin" />
+                                                            Please wait..</> : 'Yes, LogOut'
+                                                    }</Button>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>

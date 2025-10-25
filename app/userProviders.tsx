@@ -9,9 +9,17 @@ import { getMe } from '@/apis/authME';
 
 // inner component runs after Redux store is ready
 function HydrateUser() {
+
     const dispatch = useAppDispatch();
 
+    function hasSessionCookie(): boolean {
+        return document.cookie.split('; ').some(row => row.startsWith('hasSession='));
+    }
     useEffect(() => {
+        if (!hasSessionCookie()) {
+            dispatch(clearUser());
+            return;
+        }
         (async () => {
             const me = await getMe();
             if (me) {
