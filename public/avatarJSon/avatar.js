@@ -1,0 +1,62 @@
+export const avatar = [
+{
+    id:1,
+    gender:'female',
+    link:'https://i.ibb.co/vxDMxfQX/women2.jpg'
+},
+{
+    id:2,
+    gender:'female',
+    link:'https://i.ibb.co/qYZhKR70/women3.jpg'
+},
+{
+    id:3,
+    gender:'female',
+    link:'https://i.ibb.co/p6hvRqHZ/women4.jpg'
+},
+{
+    id:4,
+    gender:'female',
+    link:'https://i.ibb.co/WpFWKnDq/women6.jpg'
+},
+{
+    id:5,
+    gender:'female',
+    link:'https://i.ibb.co/9kFL0WRq/women7.jpg'
+},
+{
+    id:6,
+    gender:'female',
+    link:'https://i.ibb.co/0p33xLGW/women8.jpg'
+},
+{
+    id:7,
+    gender:'male',
+    link:'https://i.ibb.co/DH3bns48/men4.jpg'
+},
+{
+    id:8,
+    gender:'male',
+    link:'https://i.ibb.co/sd0Mj2Jy/men5.jpg'
+},
+{
+    id:9,
+    gender:'male',
+    link:'https://i.ibb.co/qFWqpyXw/men10.jpg'
+},
+{
+    id:10,
+    gender:'male',
+    link:'https://i.ibb.co/jkSpwXP6/men9.jpg'
+},
+{
+    id:11,
+    gender:'male',
+    link:'https://i.ibb.co/RGp0Cvtc/men11.jpg'
+},
+{
+    id:12,
+    gender:'male',
+    link:'https://i.ibb.co/WWZcp4K2/men12.jpg'
+},
+]
