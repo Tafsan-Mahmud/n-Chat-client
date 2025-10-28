@@ -1,4 +1,4 @@
-export const avatar = [
+export const avatarJSON = [
 {
     id:1,
     gender:'female',

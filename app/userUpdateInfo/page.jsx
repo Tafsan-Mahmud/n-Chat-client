@@ -1,7 +1,8 @@
 'use client'
-import { Camera, ChevronLeft, CloudUpload } from 'lucide-react';
-import { redirect, useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { ChevronLeft, Check, ChevronsUpDown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { cn } from "@/lib/utils"
 import {
     Tooltip,
     TooltipContent,
@@ -14,18 +15,98 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
-import camera from '@/public/images/logo/camera.png'
 
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 const img1 = 'https://i.ibb.co/NdHTBW2v/hero-4.jpg'
 const img2 = 'https://i.ibb.co/KjNsdBwY/hero-3.jpg'
 const img3 = 'https://i.ibb.co/vxFCjXvm/hero-2.jpg'
 const avatar = 'https://i.ibb.co/F4dr8xh7/thumb-girl.jpg'
 const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
 
-// Changed from 'const page = () => { ... }' to a named function export
+import { avatarJSON } from '@/public/avatarJSon/avatar';
+
+const frameworks = [
+    {
+        value: "Software Engineer",
+        label: "Software Engineer",
+    },
+    {
+        value: "Technician",
+        label: "Technician",
+    },
+    {
+        value: "Student",
+        label: "Student",
+    },
+    {
+        value: "Founder",
+        label: "Founder",
+    },
+    {
+        value: "Founder & CEO",
+        label: "Founder & CEO",
+    },
+
+    {
+        value: "Marketing HR",
+        label: "Marketing HR",
+    },
+    {
+        value: "Teacher",
+        label: "Teacher",
+    },
+]
 export default function Page() {
     const router = useRouter();
     const [selectedFile, setSelectedFile] = useState(null);
+    const [open, setOpen] = useState(false)
+    const [value, setValue] = useState("");
+    const [avatarData, setAvatarData] = useState(avatarJSON);
+    const handleGenderAvatar = (gender) => {
+        if (gender === 'all') {
+            setAvatarData(avatarJSON)
+        } else {
+            const filter = avatarJSON.filter(x => x.gender == gender)
+            setAvatarData(filter)
+        }
+    }
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -35,21 +116,22 @@ export default function Page() {
     };
 
     return (
-        <div className='w-full relative min-h-screen bg-slate-100 flex justify-center items-center'>
+        <div className='w-full relative min-h-screen bg-slate-100 flex justify-center items-center p-5 max-md:p-20'>
             <Link href={'/chats'}>
-                <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+                <div className='cursor-pointer fixed top-2 left-5 w-[150px] h-[80px]'>
                     <Image
                         alt='logo'
                         src={logo}
+                        priority 
                     />
                 </div>
             </Link>
 
-            <div className='bg-slate-50 w-[35%] min-h-[92vh] rounded'>
-                <div className='relative h-[28vh] bg-gradient-to-r from-[#fff] to-blue-600 rounded-tr-lg rounded-tl-lg'>
-                    <div className='py-4 px-4 z-10'>
+            <div className='bg-slate-50 w-[90%] md:w-2/3 lg:w-1/2 xl:w-1/3 2xl:w-[30%] pb-10 rounded'>
+                <div className='relative bg-gradient-to-r from-[#fff] to-blue-300 rounded-tr-lg rounded-tl-lg'>
+                    <div className='py-4 px-5 z-10'>
                         <Link href={'/chats'}>
-                            <div className='absolute text-lg top-6 text-slate-600 hover:text-slate-500'>
+                            <div className='absolute text-lg top-4 text-slate-600 hover:text-slate-500'>
                                 <Tooltip>
                                     <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
                                         <ChevronLeft />
@@ -61,18 +143,19 @@ export default function Page() {
                                 </Tooltip>
                             </div>
                         </Link>
-                        <h1 className='text-lg text-center font-semibold text-gray-700 border-b border-gray-600 pb-4'>Update Account</h1>
+                        <h1 className='text-lg text-center max-md:text-md font-semibold text-gray-700 border-b border-gray-600 pb-4'>Update Account</h1>
                         {/* hero section */}
                         <div className='my-5 flex justify-center'>
                             <div>
-                                <div className='flex items-center just justify-center'>
-                                    <div className='relative flex items-center just justify-center gap-8 w-[20vh] my-3'>
+                                <div className='flex items-center justify-center'>
+                                    <div className='relative flex items-center justify-center gap-8 w-full max-w-[200px] my-3'>
                                         <div className=' absolute z-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[70px] rounded-full h-[70px] flex justify-center items-center'>
                                             <Image
                                                 alt='author image'
                                                 fill
                                                 className='rounded-full shadow-xl border-3 border-white object-cover'
                                                 src={img1}
+                                                sizes="70px"
                                             />
                                         </div>
                                         <div className='relative w-[65px] h-[65px] flex justify-center items-center'>
@@ -81,6 +164,7 @@ export default function Page() {
                                                 fill
                                                 className='shadow-xl rounded-full border object-cover'
                                                 src={img2}
+                                                sizes="65px"
                                             />
                                         </div>
                                         <div className='relative w-[65px] h-[65px] flex justify-center items-center'>
@@ -89,6 +173,7 @@ export default function Page() {
                                                 fill
                                                 className='shadow-xl rounded-full border object-cover'
                                                 src={img3}
+                                                sizes="65px"
                                             />
                                         </div>
                                     </div>
@@ -101,110 +186,244 @@ export default function Page() {
                         </div>
                     </div>
                 </div>
-                {/* image chose section*/}
-                <div className='flex justify-center items-center gap-2 my-5'>
-                    <div className='flex flex-col justify-center items-center gap-1'>
-                        <div className='relative w-[80px] h-[80px] flex justify-center items-center'>
-                            <Image
-                                alt='author image'
-                                fill
-                                className='shadow-xl rounded-full object-cover'
-                                src={avatar}
-                            />
-                            <div className='absolute flex justify-center items-center rounded-full'>
-                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[80px] h-[80px]'>
 
-                                </div>
+                {/* image chose section*/}
+                <h2 className='mx-5 my-3 font-semibold text-slate-700 text-sm text-center'>You must have to chose a Photo or Avatar</h2>
+
+                <div className='flex flex-col sm:flex-row justify-center items-center gap-3 my-5'>
+                    <div className='flex flex-col justify-center items-center gap-1'>
+                        <Dialog>
+                            <form>
+                                <DialogTrigger asChild>
+                                    <div className='flex flex-col justify-center items-center'>
+                                        <div className='relative w-[70px] h-[70px] cursor-pointer flex justify-center items-center'>
+                                            <Image
+                                                alt='author image'
+                                                fill
+                                                className='shadow-xl rounded-full object-cover'
+                                                src={avatar}
+                                                sizes="70px"
+                                            />
+                                            <div className='absolute flex justify-center items-center rounded-full'>
+                                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[70px] h-[70px]'>
+
+                                                </div>
+                                                <Image
+                                                    alt='camera'
+                                                    width={22}
+                                                    height={22}
+                                                    className='z-2 mt-8 opacity-90'
+                                                    src='/images/logo/camera.png'
+                                                />
+                                            </div>
+                                        </div>
+                                        <h3 className='font-semibold text-gray-700 cursor-pointer'>Chose Avatar</h3>
+                                    </div>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Profile Avatar</DialogTitle>
+                                        <DialogDescription>
+                                            Chose a avatar that match with your gender and also you like that to see as a profile picture.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="flex w-full max-w-sm flex-col gap-6">
+                                        <Tabs defaultValue="all" onValueChange={(val) => handleGenderAvatar(val)} >
+                                            <TabsList className='gap-4'>
+                                                <TabsTrigger value="all">All</TabsTrigger>
+                                                <TabsTrigger value="male">Male</TabsTrigger>
+                                                <TabsTrigger value="female">Female</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="all">
+                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
+                                                    {
+                                                        avatarData.map(data => {
+                                                            return (
+                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
+                                                                    <Image
+                                                                        alt='avatar'
+                                                                        fill
+                                                                        className='shadow-lg rounded-full object-cover'
+                                                                        src={data.link}
+                                                                        sizes="85px"
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </TabsContent>
+                                            <TabsContent value="male">
+                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
+                                                    {
+                                                        avatarData.map(data => {
+                                                            return (
+                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
+                                                                    <Image
+                                                                        alt='avatar'
+                                                                        fill
+                                                                        className='shadow-xl rounded-full object-cover'
+                                                                        src={data.link}
+                                                                        sizes="85px"
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </TabsContent>
+                                            <TabsContent value="female">
+                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
+                                                    {
+                                                        avatarData.map(data => {
+                                                            return (
+                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
+                                                                    <Image
+                                                                        alt='avatar'
+                                                                        fill
+                                                                        className='shadow-xl rounded-full object-cover'
+                                                                        src={data.link}
+                                                                        sizes="85px"
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </div>
+                                            </TabsContent>
+                                        </Tabs>
+                                    </div>
+                                    <DialogFooter className='border-t pt-5 mt-2'>
+                                        <DialogClose asChild>
+                                            <Button variant="outline">Cancel</Button>
+                                        </DialogClose>
+                                        <Button type="submit">Done</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </form>
+                        </Dialog>
+
+                    </div>
+                    <div>
+                        <div className='flex flex-col justify-center items-center'>
+                            <div className='relative w-[50px] h-[50px] cursor-pointer flex justify-center items-center'>
                                 <Image
-                                    alt='camera'
-                                    width={25}
-                                    height={25}
-                                    className='z-2 mt-8'
-                                    src='/images/logo/camera.png'
+                                    alt='author image'
+                                    fill
+                                    className='shadow-xl rounded-full object-cover'
+                                    src={avatar}
+                                    sizes="50px"
                                 />
                             </div>
                         </div>
-                        <h3  className='font-semibold text-gray-700'>Chose Avatar</h3>
+                        ------ or ------
                     </div>
-                    <div>------ or ------</div>
-                    <div className='flex flex-col justify-center items-center gap-1'>
-                        <div className='relative w-[80px] h-[80px] flex justify-center items-center'>
+                    <Label htmlFor="file-upload" className='flex flex-col justify-center items-center gap-1 cursor-pointer'>
+                        <div className='relative w-[70px] h-[70px] flex justify-center items-center'>
                             <Image
                                 alt='author image'
                                 fill
                                 className='shadow-xl rounded-full object-cover'
-                                src={im}
+                                src={selectedFile ? URL.createObjectURL(selectedFile) : im}
+                                sizes="70px"
                             />
                             <div className='absolute flex justify-center items-center rounded-full'>
-                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[80px] h-[80px]'>
+                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[70px] h-[70px]'>
 
                                 </div>
                                 <Image
                                     alt='camera'
-                                    width={25}
-                                    height={25}
-                                    className='z-2 mt-8'
+                                    width={22}
+                                    height={22}
+                                    className='z-2 mt-8 opacity-90'
                                     src='/images/logo/camera.png'
                                 />
                             </div>
                         </div>
                         <h3 className='font-semibold text-gray-700'>Chose Photo</h3>
-                    </div>
+                        <Input
+                            id="file-upload"
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                        />
+                    </Label>
                 </div>
 
-
-                {/* personal details */}
-                {/* <div className='my-4 px-4'>
-                    <h4 className='text-xl font-semibold text-slate-600 mt-5 mb-3'>Personal Details</h4>
-                    <div className='bg-slate-100 py-6 px-4 rounded-md flex gap-4'>
-                        <div className='flex justify-start'>
-                            <div className='flex flex-col justify-center items-center gap-3 border-r pr-3'>
-                                <div className='relative w-[100px] h-[100px] flex justify-center items-center'>
-                                    <Image
-                                        alt='author image'
-                                        fill
-                                        className='rounded-full border object-cover'
-                                        src={im}
-                                    />
-                                </div>
-                                <div className="">
-                                    <label
-                                        htmlFor="file-input"
-                                        className="cursor-pointer border-blue-800 bg-blue-100 hover:bg-blue-200 border-1 px-2 py-1 rounded-sm flex justify-center items-center gap-1 w-35 transition-colors duration-250 text-xs"
-                                    >
-                                        <CloudUpload className='w-5 h-5' />
-                                        {selectedFile ? selectedFile.name : "Choose a photo"}
-                                    </label>
-                                    <input
-                                        id="file-input"
-                                        type="file"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                    />
-                                </div>
-                                <Button className='bg-blue-800 w-full rounded-sm cursor-pointer hover:bg-blue-900'>Upload</Button>
-                            </div>
-                        </div>
+                {/* imputs section */}
+                <form >
+                    <div className='flex flex-col justify-center items-center px-5 py-4'>
                         <div className='w-full'>
                             <div className="">
                                 <Label htmlFor="name" className='text-slate-700'>Name</Label>
-                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" />
+                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" readOnly required value='Abu Hasnat Nobin' />
 
-                                <Label htmlFor="title" className='text-slate-700'>Title</Label>
-                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="title" placeholder="your title" />
+                                <Label htmlFor="gender" className='text-slate-700'>Gender</Label>
+                                <Select required>
+                                    <SelectTrigger id='gender' className="w-full text-slate-700 mb-4 mt-2 bg-slate-50">
+                                        <SelectValue placeholder="Select a fruit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>--- Select your gender ---</SelectLabel>
+                                            <SelectItem value="Male">Male</SelectItem>
+                                            <SelectItem value="Female">Female</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                <Label htmlFor="title" className='text-slate-700'>Title / Occupation</Label>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={open}
+                                            className="w-full text-slate-700 mb-4 mt-2 bg-slate-50 justify-between"
+                                        >
+                                            {value
+                                                ? frameworks.find((framework) => framework.value === value)?.label
+                                                : "Select your tittle / Occupation..."}
+                                            <ChevronsUpDown className="opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                        <Command>
+                                            <CommandInput placeholder="Search framework..." className="h-9" />
+                                            <CommandList className="max-h-[300px] overflow-y-auto">
+                                                <CommandEmpty>No framework found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {frameworks.map((framework) => (
+                                                        <CommandItem
+                                                            key={framework.value}
+                                                            value={framework.value}
+                                                            onSelect={(currentValue) => {
+                                                                setValue(currentValue === value ? "" : currentValue)
+                                                                setOpen(false)
+                                                            }}
+                                                        >
+                                                            {framework.label}
+                                                            <Check
+                                                                className={cn(
+                                                                    "ml-auto",
+                                                                    value === framework.value ? "opacity-100" : "opacity-0"
+                                                                )}
+                                                            />
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
 
-                                <Label htmlFor="bio">Your Bio <span className='text-slate-500'>'optional'</span></Label>
-                                <Textarea placeholder="Type your bio here." className='text-slate-700 mb-4 mt-2 bg-slate-50' id="bio" />
+                                <Label htmlFor="bio">Your Bio</Label>
+                                <Textarea required placeholder="Type your bio here." className='text-slate-700 mb-4 mt-2 bg-slate-50 text-lg' id="bio" />
                             </div>
-                            <Button className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Save Change</Button>
-                        </div>
-                        <div>
-
+                            <Button type='submit' className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Update</Button>
                         </div>
                     </div>
-
-                </div> */}
-                {/* Password and Security */}
+                </form>
             </div>
         </div>
     );

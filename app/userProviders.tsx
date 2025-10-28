@@ -23,7 +23,6 @@ function HydrateUser() {
         (async () => {
             const me = await getMe();
             if (me) {
-                console.log(me);
                 dispatch(setUser(me))
             }
             else {
