@@ -27,7 +27,15 @@ import Multibg from '@/components/multibg';
 import { CircleAlert, Eye, EyeOff, Loader2Icon } from 'lucide-react';
 import { registerAuth } from '@/apis/handleRegister';
 import { useRouter } from 'next/navigation';
-
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 // IMPORTANT: This interface MUST match the 'CountryOption' in your components/CountrySelect.tsx
 interface SelectedCountryOption {
     value: string; // This is the COUNTRY NAME (e.g., "United States")
@@ -45,10 +53,15 @@ export default function Register() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        gender: '',
         country: '',
         password: '',
         confirmPassword: '',
     });
+
+    const handleSelectChange = useCallback((id: string, value: string) => {
+        setFormData(prev => ({ ...prev, [id]: value }));
+    }, []);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
@@ -79,6 +92,7 @@ export default function Register() {
                         setFormData({
                             name: '',
                             email: '',
+                            gender: '',
                             country: '',
                             password: '',
                             confirmPassword: '',
@@ -88,7 +102,7 @@ export default function Register() {
                     if (res.status === 'VERIFY!') {
                         toast(res.status, {
                             style: {
-                             
+
                                 color: "#22c55e"
                             },
                             description: res.message,
@@ -117,7 +131,7 @@ export default function Register() {
         <div className="min-h-screen relative flex flex-col">
             <Multibg />
             <div className="flex-grow flex flex-col items-center justify-center mt-10 p-4">
-                <Card className="w-full rounded-md max-w-sm shadow-none relative pt-12">
+                <Card className="w-full rounded-md max-w-sm shadow-none relative pt-9">
                     <div
                         className="absolute -top-10 left-1/2 -translate-x-1/2 w-17 h-17 rounded-full flex items-center justify-center overflow-hidden">
                         <div className='cursor-pointer w-[150px] h-[80px]'>
@@ -129,8 +143,8 @@ export default function Register() {
                     </div>
                     <form onSubmit={handleSubmit}>
                         <CardHeader>
-                            <CardTitle className="text-2xl text-center ">Create Account</CardTitle>
-                            <CardDescription className="text-center mb-6">
+                            <CardTitle className="text-xl text-center text-slate-700 ">Create Account</CardTitle>
+                            <CardDescription className="text-center text-sm mb-5">
                                 Lorem, ipsum dolor sit amet sdf amet eligendi soluta.
                             </CardDescription>
                         </CardHeader>
@@ -159,6 +173,29 @@ export default function Register() {
                                         value={formData.email}
                                         onChange={handleInputChange}
                                     />
+                                </div>
+
+                                <div className="grid gap-2">
+                                    <div className="flex items-center">
+                                        <Label htmlFor="gender">Select Gender</Label>
+                                    </div>
+
+                                    <Select
+                                        required
+                                        onValueChange={(value) => handleSelectChange('gender', value)}
+                                        value={formData.gender}
+                                    >
+                                        <SelectTrigger id='gender' className="w-full font-semibold">
+                                            <SelectValue placeholder="Select your gender" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectLabel>--- Select your gender ---</SelectLabel>
+                                                <SelectItem value="Male">Male</SelectItem>
+                                                <SelectItem value="Female">Female</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="grid gap-2">
                                     <div className="flex items-center">
@@ -234,7 +271,7 @@ export default function Register() {
                             </div>
 
                         </CardContent>
-                        <CardFooter className="flex-col gap-2 mt-8">
+                        <CardFooter className="flex-col gap-2 mt-5">
                             <Button disabled={isClicked} type="submit" className="cursor-pointer w-full bg-blue-800 hover:bg-blue-900">
                                 {
                                     isClicked ? <><Loader2Icon className="animate-spin" />
@@ -243,7 +280,7 @@ export default function Register() {
                             </Button>
                         </CardFooter>
                     </form>
-                    <div className="text-center my-3 text-sm">
+                    <div className="text-center my-2 text-sm">
                         <span><span className="text-neutral-400">Already have an account ?</span> <Link href={'/signin'}>Sign in instead</Link></span>
                     </div>
                 </Card>

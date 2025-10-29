@@ -4,6 +4,7 @@ import { maskEmail } from '@/util/maskEmail';
 interface RegistrationFormData {
     name: string;
     email: string;
+    gender:string;
     country: string;
     password: string;
     confirmPassword: string;
