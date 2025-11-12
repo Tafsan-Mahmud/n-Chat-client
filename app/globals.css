@@ -68,8 +68,13 @@
 .custom-scrollbar-drawer::-webkit-scrollbar {
   width: 4px; /* Width of the entire scrollbar */
 }
-
-
+.apple-emoji {
+    width: 1.3em !important; /* Adjust to match your desired text size */
+    height: 1.3em !important; /* Aligns the image nicely with the text baseline */
+    margin: 0 0.1em;
+    border-radius: 5em;
+    /* display: inline-block; */
+}
 
 @custom-variant dark (&:is(.dark *));
 

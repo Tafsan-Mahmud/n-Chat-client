@@ -49,8 +49,8 @@ const DetailUser = (props) => {
                 </div>
             </div>
             <div className='text-center mb-7'>
-                <p className='text-2xl font-semibold text-slate-800'>{selectedUser.name}</p>
-                <p className='text-sm text-slate-600'>{selectedUser.title}</p>
+                <p className='text-2xl font-bold text-slate-800'>{selectedUser.name}</p>
+                <p className='text-sm text-slate-600 font-semibold'>{selectedUser.title}</p>
             </div>
             {/*customisation card  */}
             <div className='mx-4'>
