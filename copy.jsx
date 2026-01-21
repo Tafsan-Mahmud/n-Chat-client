@@ -1,406 +1,114 @@
-'use client'
-import React, { useState } from 'react';
-import { ChevronLeft, Check, ChevronsUpDown } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { cn } from "@/lib/utils"
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import logo from '../../public/images/logo/logoName.png';
-import Image from 'next/image';
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import Link from 'next/link';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { uriAuth } from './public/apiuri/uri';
 
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-const img1 = 'https://i.ibb.co/NdHTBW2v/hero-4.jpg'
-const img2 = 'https://i.ibb.co/KjNsdBwY/hero-3.jpg'
-const img3 = 'https://i.ibb.co/vxFCjXvm/hero-2.jpg'
-const avatar = 'https://i.ibb.co/F4dr8xh7/thumb-girl.jpg'
-const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
+/**
+ * SECURE ROUTE GATEKEEPER
+ * Handles Authentication and Profile Completion redirection.
+ */
 
-import { avatarJSON } from '@/public/avatarJSon/avatar';
+const PROTECTED_ROUTES = ['/chats', '/accountSetting', '/userUpdateInfo'];
+const AUTH_ROUTES = ['/signin', '/register', '/authOTP', '/forgotPass'];
+const UPDATE_INFO_ROUTE = '/userUpdateInfo';
 
-const frameworks = [
-    {
-        value: "Software Engineer",
-        label: "Software Engineer",
-    },
-    {
-        value: "Technician",
-        label: "Technician",
-    },
-    {
-        value: "Student",
-        label: "Student",
-    },
-    {
-        value: "Founder",
-        label: "Founder",
-    },
-    {
-        value: "Founder & CEO",
-        label: "Founder & CEO",
-    },
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('token')?.value;
+  const pathname = request.nextUrl.pathname;
+  const validationUrl = `${uriAuth}/validate-token`;
 
-    {
-        value: "Marketing HR",
-        label: "Marketing HR",
-    },
-    {
-        value: "Teacher",
-        label: "Teacher",
-    },
-]
-export default function Page() {
-    const router = useRouter();
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [open, setOpen] = useState(false)
-    const [value, setValue] = useState("");
-    const [avatarData, setAvatarData] = useState(avatarJSON);
-    const handleGenderAvatar = (gender) => {
-        if (gender === 'all') {
-            setAvatarData(avatarJSON)
-        } else {
-            const filter = avatarJSON.filter(x => x.gender == gender)
-            setAvatarData(filter)
-        }
+  /**
+   * Helper function to clone the current URL and change the path.
+   */
+  const getRedirectUrl = (path: string) => {
+    const url = request.nextUrl.clone();
+    url.pathname = path;
+    return url;
+  };
+
+  // A. Logic for PROTECTED ROUTES
+  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+    // 1. If no token is present, redirect to signin
+    if (!token) {
+      return NextResponse.redirect(getRedirectUrl('/signin'), 302);
     }
-    console.log(avatarData)
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);
+    try {
+      // 2. Call backend to validate token and fetch profile status
+      const response = await fetch(validationUrl, {
+        method: 'GET',
+        headers: { 'Cookie': `token=${token}` },
+      });
+
+      // 3. Handle invalid or expired sessions
+      if (response.status !== 200) {
+        const redirectResponse = NextResponse.redirect(getRedirectUrl('/signin'), 302);
+        redirectResponse.cookies.delete('token');
+        return redirectResponse;
+      }
+
+      // 4. Extract profile status
+      const data = await response.json();
+      const isProfileComplete = data.isProfileComplete;
+
+      // --- REDIRECTION ENFORCEMENT ---
+      
+      // If profile is NOT complete AND user is NOT on userUpdateInfo -> Force Redirect to setup
+      if (!isProfileComplete && pathname !== UPDATE_INFO_ROUTE) {
+        return NextResponse.redirect(getRedirectUrl(UPDATE_INFO_ROUTE), 302);
+      }
+
+      // If profile IS complete AND user tries to access userUpdateInfo manually -> Send to chats
+      if (isProfileComplete && pathname === UPDATE_INFO_ROUTE) {
+        return NextResponse.redirect(getRedirectUrl('/chats'), 302);
+      }
+
+      return NextResponse.next();
+
+    } catch (err) {
+      console.error('Middleware validation error:', err);
+      // Fail secure: if validation fails, send to signin
+      return NextResponse.redirect(getRedirectUrl('/signin'), 302);
+    }
+  }
+
+  // B. Logic for AUTH ROUTES (Prevent logged-in users from seeing signin/register)
+  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
+    if (token) {
+      try {
+        const response = await fetch(validationUrl, {
+          method: 'GET',
+          headers: { 'Cookie': `token=${token}` },
+        });
+
+        if (response.status === 200) {
+          const data = await response.json();
+          // Redirect based on whether their profile is finished or not
+          const destination = data.isProfileComplete ? '/chats' : UPDATE_INFO_ROUTE;
+          return NextResponse.redirect(getRedirectUrl(destination), 302);
         }
-    };
+      } catch (err) {
+        console.error('Auth route validation error:', err);
+      }
 
-    return (
-        <div className='w-full relative h-[100vh] bg-slate-100 flex justify-center items-center'>
-            <Link href={'/chats'}>
-                <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
-                    <Image
-                        alt='logo'
-                        src={logo}
-                    />
-                </div>
-            </Link>
+      // If token exists but is invalid, clear it and allow the auth page to load
+      const nextResponse = NextResponse.next();
+      nextResponse.cookies.delete('token');
+      return nextResponse;
+    }
+  }
 
-            <div className='bg-slate-50 w-[25%] h-[80vh] pb-10 rounded'>
-                <div className='relative h-[28vh] bg-gradient-to-r from-[#fff] to-blue-300 rounded-tr-lg rounded-tl-lg'>
-                    <div className='py-4 px-5 z-10'>
-                        <Link href={'/chats'}>
-                            <div className='absolute text-lg top-4 text-slate-600 hover:text-slate-500'>
-                                <Tooltip>
-                                    <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
-                                        <ChevronLeft />
-                                        <span>Home</span>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Back To Chats</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </div>
-                        </Link>
-                        <h1 className='text-lg text-center font-semibold text-gray-700 border-b border-gray-600 pb-4'>Update Account</h1>
-                        {/* hero section */}
-                        <div className='my-5 flex justify-center'>
-                            <div>
-                                <div className='flex items-center just justify-center'>
-                                    <div className='relative flex items-center just justify-center gap-8 w-[20vh] my-3'>
-                                        <div className=' absolute z-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[70px] rounded-full h-[70px] flex justify-center items-center'>
-                                            <Image
-                                                alt='author image'
-                                                fill
-                                                className='rounded-full shadow-xl border-3 border-white object-cover'
-                                                src={img1}
-                                            />
-                                        </div>
-                                        <div className='relative w-[65px] h-[65px] flex justify-center items-center'>
-                                            <Image
-                                                alt='author image'
-                                                fill
-                                                className='shadow-xl rounded-full border object-cover'
-                                                src={img2}
-                                            />
-                                        </div>
-                                        <div className='relative w-[65px] h-[65px] flex justify-center items-center'>
-                                            <Image
-                                                alt='author image'
-                                                fill
-                                                className='shadow-xl rounded-full border object-cover'
-                                                src={img3}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className='text-center'>
-                                    <h3 className='text-2xl mb-1 font-bold text-gray-700'>Revamp Your Profile</h3>
-                                    <p className='text-gray-700'>Update your profile to reflect the best version of yourselt.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  return NextResponse.next();
+}
 
-                {/* image chose section*/}
-                <h2 className='mx-5 my-3 font-semibold text-slate-700 text-sm text-center'>You must have to chose a Photo or Avatar</h2>
-
-                <div className='flex justify-center items-center gap-3 my-5'>
-                    <div className='flex flex-col justify-center items-center gap-1'>
-                        <Dialog>
-                            <form>
-                                <DialogTrigger asChild>
-                                    <div className='flex flex-col justify-center items-center'>
-                                        <div className='relative w-[70px] h-[70px] cursor-pointer flex justify-center items-center'>
-                                            <Image
-                                                alt='author image'
-                                                fill
-                                                className='shadow-xl rounded-full object-cover'
-                                                src={avatar}
-                                            />
-                                            <div className='absolute flex justify-center items-center rounded-full'>
-                                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[70px] h-[70px]'>
-
-                                                </div>
-                                                <Image
-                                                    alt='camera'
-                                                    width={22}
-                                                    height={22}
-                                                    className='z-2 mt-8 opacity-90'
-                                                    src='/images/logo/camera.png'
-                                                />
-                                            </div>
-                                        </div>
-                                        <h3 className='font-semibold text-gray-700 cursor-pointer'>Chose Avatar</h3>
-                                    </div>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Profile Avatar</DialogTitle>
-                                        <DialogDescription>
-                                            Chose a avatar that match with your gender and also you like that to see as a profile picture.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="flex w-full max-w-sm flex-col gap-6">
-                                        <Tabs defaultValue="all" onValueChange={(val) => handleGenderAvatar(val)} >
-                                            <TabsList className='gap-4'>
-                                                <TabsTrigger value="all">All</TabsTrigger>
-                                                <TabsTrigger value="male">Male</TabsTrigger>
-                                                <TabsTrigger value="female">Female</TabsTrigger>
-                                            </TabsList>
-                                            <TabsContent value="all">
-                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
-                                                    {
-                                                        avatarData.map(data => {
-                                                            return (
-                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
-                                                                    <Image
-                                                                        alt='avatar'
-                                                                        fill
-                                                                        className='shadow-lg rounded-full object-cover'
-                                                                        src={data.link}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                </div>
-                                            </TabsContent>
-                                            <TabsContent value="male">
-                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
-                                                    {
-                                                        avatarData.map(data => {
-                                                            return (
-                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
-                                                                    <Image
-                                                                        alt='avatar'
-                                                                        fill
-                                                                        className='shadow-xl rounded-full object-cover'
-                                                                        src={data.link}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                </div>
-                                            </TabsContent>
-                                            <TabsContent value="female">
-                                                <div className='w-sm flex flex-wrap justify-center gap-3'>
-                                                    {
-                                                        avatarData.map(data => {
-                                                            return (
-                                                                <div key={data.id} className='relative w-[85px] h-[85px] cursor-pointer flex justify-center items-center'>
-                                                                    <Image
-                                                                        alt='avatar'
-                                                                        fill
-                                                                        className='shadow-xl rounded-full object-cover'
-                                                                        src={data.link}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                        })
-                                                    }
-                                                </div>
-                                            </TabsContent>
-                                        </Tabs>
-                                    </div>
-                                    <DialogFooter className='border-t pt-5 mt-2'>
-                                        <DialogClose asChild>
-                                            <Button variant="outline">Cancel</Button>
-                                        </DialogClose>
-                                        <Button type="submit">Done</Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </form>
-                        </Dialog>
-
-                    </div>
-                    <div>
-                        <div className='flex flex-col justify-center items-center'>
-                            <div className='relative w-[50px] h-[50px] cursor-pointer flex justify-center items-center'>
-                                <Image
-                                    alt='author image'
-                                    fill
-                                    className='shadow-xl rounded-full object-cover'
-                                    src={avatar}
-                                />
-                            </div>
-                        </div>
-                        ------ or ------
-                    </div>
-                    <div className='flex flex-col justify-center items-center gap-1'>
-                        <div className='relative w-[70px] h-[70px] cursor-pointer flex justify-center items-center'>
-                            <Image
-                                alt='author image'
-                                fill
-                                className='shadow-xl rounded-full object-cover'
-                                src={im}
-                            />
-                            <div className='absolute flex justify-center items-center rounded-full'>
-                                <div className='bg-gray-900 opacity-50 absolute rounded-full w-[70px] h-[70px]'>
-
-                                </div>
-                                <Image
-                                    alt='camera'
-                                    width={22}
-                                    height={22}
-
-                                    className='z-2 mt-8 opacity-90'
-                                    src='/images/logo/camera.png'
-                                />
-                            </div>
-                        </div>
-                        <h3 className='font-semibold text-gray-700'>Chose Photo</h3>
-                    </div>
-                </div>
-
-
-
-
-
-                {/* imputs section */}
-                <form >
-                    <div className='flex flex-col jusftify-center items-center px-5 py-4'>
-                        <div className='w-full'>
-                            <div className="">
-                                <Label htmlFor="name" className='text-slate-700'>Name</Label>
-                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" readOnly required value='Abu Hasnat Nobin' />
-
-                                <Label htmlFor="title" className='text-slate-700'>Title / Occupation</Label>
-                                {/* <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="title" placeholder="your title" /> */}
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={open}
-                                            className="w-full text-slate-700 mb-4 mt-2 bg-slate-50 justify-between"
-                                        >
-                                            {value
-                                                ? frameworks.find((framework) => framework.value === value)?.label
-                                                : "Select your tittle / Occupation..."}
-                                            <ChevronsUpDown className="opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-[200px] p-0">
-                                        <Command>
-                                            <CommandInput placeholder="Search framework..." className="h-9" />
-                                            <CommandList>
-                                                <CommandEmpty>No framework found.</CommandEmpty>
-                                                <CommandGroup>
-                                                    {frameworks.map((framework) => (
-                                                        <CommandItem
-                                                            key={framework.value}
-                                                            value={framework.value}
-                                                            onSelect={(currentValue) => {
-                                                                setValue(currentValue === value ? "" : currentValue)
-                                                                setOpen(false)
-                                                            }}
-                                                        >
-                                                            {framework.label}
-                                                            <Check
-                                                                className={cn(
-                                                                    "ml-auto",
-                                                                    value === framework.value ? "opacity-100" : "opacity-0"
-                                                                )}
-                                                            />
-                                                        </CommandItem>
-                                                    ))}
-                                                </CommandGroup>
-                                            </CommandList>
-                                        </Command>
-                                    </PopoverContent>
-                                </Popover>
-
-                                <Label htmlFor="bio">Your Bio</Label>
-                                <Textarea required placeholder="Type your bio here." className='text-slate-700 mb-4 mt-2 bg-slate-50 text-lg' id="bio" />
-                            </div>
-                            <Button type='submit' className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Update</Button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
+// 3. Matcher configuration
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for:
+     * - api routes (excluding /api/auth)
+     * - static files (_next/static, _next/image)
+     * - public assets (images, favicon.ico)
+     */
+    '/((?!api/(?!auth)|_next/static|_next/image|images|favicon.ico|.*\\.png$).*)',
+  ],
 };

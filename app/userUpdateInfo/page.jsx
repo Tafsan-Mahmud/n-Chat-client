@@ -53,6 +53,7 @@ const preview = 'https://i.ibb.co/20knMBVT/avatar.jpg'
 const im = 'https://yt3.ggpht.com/m0a6GCrPDK4HpJ5OylPjISR7rRmJKYqk2FbHr4lvu2yQKrBMWaIK4z3JVcqe7KcAIllbz8EGVfA=s88-c-k-c0x00ffffff-no-rj';
 
 import { avatarJSON } from '@/public/avatarJSon/avatar';
+import { updateUserProfile } from '@/apis/userActions/updateProfile';
 
 const tittle = [
     {
@@ -86,21 +87,29 @@ const tittle = [
     },
 ]
 export default function Page() {
+
     const router = useRouter();
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
+
+    const [ttlError, setTtlError] = useState('');
+    const [bioError, setBioError] = useState('');
+    const [profileError, setProfileError] = useState(false);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [isClicked, setClicked] = useState(false);
+
     const [selectedAvatarId, setSelectedAvatarId] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [avatarData, setAvatarData] = useState(avatarJSON);
-    const [ttlError, setTtlError] = useState('')
-    const [bioError, setBioError] = useState('')
 
     const [formData, setFormData] = useState({
         tittle: '',
         bio: '',
     });
+
     const handleInputChange = (e) => {
         setBioError('')
         const { id, value } = e.target;
@@ -121,10 +130,11 @@ export default function Page() {
             setAvatarData(filter)
         }
     }
+
     const handleSelectAvatar = (id, link) => {
         setSelectedAvatarId(id)
         setSelectedAvatar(link)
-        console.log(link);
+        setProfileError(false)
 
     }
     const handleDialogAction = (x, y) => {
@@ -137,17 +147,24 @@ export default function Page() {
             setIsOpen(false);
         }
     }
+
     const handleFileChange = (event) => {
+
         const file = event.target.files[0];
         if (file) {
+            setProfileError(false)
             setSelectedAvatar(null);
             setSelectedAvatarId(null);
             setSelectedFile(file);
         }
+
     };
 
     const handleUpdateInfo = async (e) => {
         e.preventDefault();
+        if (!selectedAvatar || !selectedFile) {
+            setProfileError(true);
+        }
         if (formData.tittle === '') {
             setTtlError('Please select Title / Occupation')
         } else {
@@ -158,11 +175,31 @@ export default function Page() {
         } else {
             setBioError('')
         }
+        const data = new FormData();
 
+        data.append('title', formData.tittle);
+        data.append('bio', formData.bio);
 
+        if (selectedFile) {
+            data.append('image', selectedFile);
+        }
+        if (!selectedFile && selectedAvatar) {
+            data.append('avatarUrl', selectedAvatar);
+        }
+        if (selectedAvatar || selectedFile && formData.tittle && formData.bio) {
+            try {
+                const response = await updateUserProfile(data);
+
+                // success handling
+                console.log(response);
+                // router.push('/chats');
+
+            } catch (err) {
+                console.error(err);
+                setProfileError(err.message || 'Something went wrong');
+            }
+        } 
     }
-
-
     return (
         <div className='w-full relative min-h-screen bg-slate-100 flex justify-center items-center p-5 max-md:p-20'>
             <Link href={'/chats'}>
@@ -236,7 +273,10 @@ export default function Page() {
                 </div>
 
                 {/* image chose section*/}
-                <h2 className='mx-5 my-3 font-semibold text-slate-700 text-sm text-center'>You must have to chose a Photo or Avatar</h2>
+
+                {profileError &&
+                    <h2 className='mx-5 my-3 font-semibold text-red-600 text-sm text-center'>Warning : You must have to chose a Photo or Avatar!</h2>
+                }
 
                 <div className='flex flex-col sm:flex-row justify-center items-center gap-8 my-5'>
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -415,7 +455,7 @@ export default function Page() {
                 <div className='flex flex-col justify-center items-center px-5 py-4'>
                     <div className='w-full'>
                         <div className="">
-                            <Label htmlFor="name" className='text-slate-700'>Name</Label>
+                            <Label htmlFor="name" className='text-slate-700'>Name - <span className='text-gray-400 font-normal'>( not editable right now! )</span></Label>
                             <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" readOnly required value='Abu Hasnat Nobin' />
                             <Label htmlFor="title" className='text-slate-700'>Title / Occupation
                                 {
@@ -446,9 +486,9 @@ export default function Page() {
                                 </PopoverTrigger>
                                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                                     <Command>
-                                        <CommandInput placeholder="Search framework..." className="h-9" />
+                                        <CommandInput placeholder="Search tittle / Occupation...." className="h-9" />
                                         <CommandList className="max-h-[300px] overflow-y-auto">
-                                            <CommandEmpty>No framework found.</CommandEmpty>
+                                            <CommandEmpty>No title / Occupation. found.</CommandEmpty>
                                             <CommandGroup>
                                                 {tittle.map((data) => (
                                                     <CommandItem
@@ -495,7 +535,12 @@ export default function Page() {
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <Button onClick={handleUpdateInfo} className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Update</Button>
+                        <Button onClick={handleUpdateInfo} disabled={isClicked} type="submit" className="cursor-pointer w-full bg-blue-800 hover:bg-blue-900">
+                            {
+                                isClicked ? <><Loader2Icon className="animate-spin" />
+                                    Please wait..</> : 'Update'
+                            }
+                        </Button>
                     </div>
                 </div>
             </div>

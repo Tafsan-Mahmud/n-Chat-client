@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react';
-import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu, LogOut, Loader2Icon } from 'lucide-react';
+import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu, LogOut, Loader2Icon, Volume2 } from 'lucide-react';
 import Image from 'next/image';
 import {
     Sheet,
@@ -73,7 +73,7 @@ const AuthorSec = () => {
                             !user ? 'xxxxxxxx' : user?.name
                         }<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
                         <p className='text-md text-slate-600'>{
-                            !user ? 'xxxxxxxx' : user?.email
+                            !user ? 'xxxxxxxx' : user?.title
                         }</p>
                     </div>
                     <div className='flex items-center border-l pl-2'>
@@ -95,8 +95,8 @@ const AuthorSec = () => {
                                     </div>
                                 </div>
                                 <div className='text-center mb-4'>
-                                    <p className='text-2xl font-semibold text-slate-800'>Bob Johnson</p>
-                                    <p className='text-sm text-slate-600'>Product Manager</p>
+                                    <p className='text-2xl font-semibold text-slate-800'>{!user ? 'xxxxxxxx' : user?.name}</p>
+                                    <p className='text-sm text-slate-600'>{!user ? 'xxxxxxxx' : user?.title}</p>
                                 </div>
                                 <div className='mx-4'>
                                     <h5 className='text-lg font-semibold text-slate-600 mb-2'>Customisation</h5>
@@ -113,10 +113,10 @@ const AuthorSec = () => {
                                                 <p className='w-full pb-3 border-b font-semibold'>Dark Mode</p>
                                             </div>
                                         </div>
-                                        <div className='w-full'>
-                                            <div className='flex text-slate-600 p-3 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
+                                       <div className='w-full'>
+                                            <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
                                                 <div><BellRing /></div>
-                                                <p className='w-full pb-3 border-b font-semibold'>Notifications and Sounds</p>
+                                                <p className='w-full pb-3 border-b font-semibold'>Notification & Sound</p>
                                             </div>
                                         </div>
                                     </div>

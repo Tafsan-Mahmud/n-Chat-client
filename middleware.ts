@@ -2,83 +2,125 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { uriAuth } from './public/apiuri/uri';
 
-const PROTECTED_ROUTES = ['/chats', '/accountSetting'];
+const PROTECTED_ROUTES = ['/chats', '/accountSetting', '/userUpdateInfo'];
 const AUTH_ROUTES = ['/signin', '/register', '/authOTP', '/forgotPass'];
 
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
+  const otpPending = request.cookies.get('otp_pending')?.value;
   const pathname = request.nextUrl.pathname;
   const validationUrl = `${uriAuth}/validate-token`;
 
-  // A. Protected routes
-  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+  const isProtected = PROTECTED_ROUTES.some(route =>
+    pathname.startsWith(route)
+  );
+
+  const isAuthRoute = AUTH_ROUTES.some(route =>
+    pathname.startsWith(route)
+  );
+  
+  // ─────────────────────────────────────
+  //  OTP PAGE GUARD (VERY IMPORTANT)
+  // ─────────────────────────────────────
+  if (pathname.startsWith('/authOTP')) {
+    // Logged-in users can NEVER access OTP page
+    if (token) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/chats';
+      return NextResponse.redirect(url);
+    }
+
+    // OTP page only allowed if backend issued otp_pending
+    if (!otpPending) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/signin';
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  }
+  // ─────────────────────────────
+  // A. PROTECTED ROUTES
+  // ─────────────────────────────
+  if (isProtected) {
     if (!token) {
       const url = request.nextUrl.clone();
       url.pathname = '/signin';
-      return NextResponse.redirect(url, 302);
+      return NextResponse.redirect(url);
     }
 
-    let isValid = false;
     try {
       const response = await fetch(validationUrl, {
-        method: 'GET',
-        headers: { 'Cookie': `token=${token}` },
+        headers: { Cookie: `token=${token}` },
       });
-      if (response.status === 200) isValid = true;
-    } catch (err) {
-      console.error('Token validation error:', err);
-    }
 
-    if (!isValid) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/signin';
-      const redirectResponse = NextResponse.redirect(url, 302);
-      redirectResponse.cookies.delete('token');
-      return redirectResponse;
-    }
-
-    return NextResponse.next();
-  }
-
-  // B. Auth routes
-  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
-    if (token) {
-      let isValid = false;
-      try {
-        const response = await fetch(validationUrl, {
-          method: 'GET',
-          headers: { 'Cookie': `token=${token}` },
-        });
-        if (response.status === 200) isValid = true;
-      } catch (err) {
-        console.error('Token validation error:', err);
+      //  invalid / expired / forged token
+      if (response.status !== 200) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/signin';
+        const res = NextResponse.redirect(url);
+        res.cookies.delete('token'); //  cleanup bad cookie
+        return res;
       }
 
-      if (isValid) {
+      const { isProfileComplete } = await response.json();
+
+      //  force profile completion
+      if (!isProfileComplete && !pathname.startsWith('/userUpdateInfo')) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/userUpdateInfo';
+        return NextResponse.redirect(url);
+      }
+
+      //  block profile page after completion
+      if (isProfileComplete && pathname.startsWith('/userUpdateInfo')) {
         const url = request.nextUrl.clone();
         url.pathname = '/chats';
-        return NextResponse.redirect(url, 302);
+        return NextResponse.redirect(url);
       }
 
-      const nextResponse = NextResponse.next();
-      nextResponse.cookies.delete('token');
-      return nextResponse;
+      return NextResponse.next();
+    } catch {
+      const url = request.nextUrl.clone();
+      url.pathname = '/signin';
+      return NextResponse.redirect(url);
     }
-
-    return NextResponse.next();
   }
 
-  // C. Everything else
+  // ─────────────────────────────
+  // B. AUTH ROUTES (signin, signup)
+  // ─────────────────────────────
+  if (isAuthRoute && token) {
+    try {
+      const response = await fetch(validationUrl, {
+        headers: { Cookie: `token=${token}` },
+      });
+
+      if (response.status === 200) {
+        const { isProfileComplete } = await response.json();
+        const url = request.nextUrl.clone();
+        url.pathname = isProfileComplete ? '/chats' : '/userUpdateInfo';
+        return NextResponse.redirect(url);
+      }
+
+      //  bad token on auth routes → clean it
+      const res = NextResponse.next();
+      res.cookies.delete('token');
+      return res;
+    } catch {
+      const res = NextResponse.next();
+      res.cookies.delete('token');
+      return res;
+    }
+  }
+
+  // ─────────────────────────────
+  // C. EVERYTHING ELSE
+  // ─────────────────────────────
   return NextResponse.next();
 }
-
-// 3. Define the matcher configuration
 export const config = {
   matcher: [
-    // Matches all request paths except for files, static assets, and APIs (excluding /api/auth)
     '/((?!api/(?!auth)|_next/static|_next/image|images|favicon.ico|.*\\.png$).*)',
   ],
 };
-
-
-// const validationUrl = `${uriAuth}/validate-token`;

@@ -1,5 +1,20 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+:root {
+  /* Brand Colors */
+  --primary-color: #3b82f6;
+  --primary-hover: #2563eb;
+  
+  /* Neutral Palette */
+  --bg-main: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --error: #ef4444;
+}
+
 
 .custom-scrollbar-container::-webkit-scrollbar {
    display: none;
