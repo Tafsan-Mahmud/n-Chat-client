@@ -17,9 +17,14 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "i.ibb.co", // ✅ correct domain
+        hostname: "i.ibb.co", //  correct domain
         port: "",
         pathname: "**",
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**', // This allows all images from Cloudinary
       },
     ],
   },

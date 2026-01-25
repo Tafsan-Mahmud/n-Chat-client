@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { BellRing, MonitorDot, Settings, SunMoon, Image as Photo, ShieldQuestionMark, TriangleAlert, FileSpreadsheet, ContactRound, DoorClosedLocked, Heart, Cpu, LogOut, Loader2Icon, Volume2 } from 'lucide-react';
 import Image from 'next/image';
 import {
@@ -65,8 +65,8 @@ const AuthorSec = () => {
                         width={100}
                         height={100}
                         className='rounded-full select-none'
-                        src={im} />
-                </div>
+                        src={user?.profile_image ? user?.profile_image : im} />
+                </div> 
                 <div className='flex w-full justify-between'>
                     <div>
                         <p className='text-xl font-semibold text-slate-700'>{

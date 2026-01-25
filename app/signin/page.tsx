@@ -41,7 +41,7 @@ export default function Login() {
         const res = await SigninAuth(formData, router);
         // console.log(res);
         if (res.status === 'SUCCESS') {
-            setIsClicked(false)
+           
             toast(res.status, {
                 style: {
                     color: "#22c55e"
@@ -49,6 +49,7 @@ export default function Login() {
                 description: res.message,
                 richColors: true,
             });
+            setIsClicked(false)
         }
         if (res.status === "PROCESS!") {
             setIsClicked(false)

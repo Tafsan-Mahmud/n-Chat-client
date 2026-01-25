@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react';
-import { ChevronLeft, Check, ChevronsUpDown, CircleAlert } from 'lucide-react';
+import { ChevronLeft, Check, ChevronsUpDown, CircleAlert, Loader2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils"
 import {
@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
-
+import { useAppDispatch } from '@/store'; // or wherever your store is
+import { setUser } from '@/store/userSlice';
 import {
     Command,
     CommandEmpty,
@@ -54,6 +55,7 @@ const im = 'https://yt3.ggpht.com/m0a6GCrPDK4HpJ5OylPjISR7rRmJKYqk2FbHr4lvu2yQKr
 
 import { avatarJSON } from '@/public/avatarJSon/avatar';
 import { updateUserProfile } from '@/apis/userActions/updateProfile';
+import { toast } from 'sonner';
 
 const tittle = [
     {
@@ -95,7 +97,7 @@ export default function Page() {
 
     const [ttlError, setTtlError] = useState('');
     const [bioError, setBioError] = useState('');
-    const [profileError, setProfileError] = useState(false);
+    const [profileError, setProfileError] = useState('');
 
     const [isOpen, setIsOpen] = useState(false);
     const [isClicked, setClicked] = useState(false);
@@ -109,6 +111,7 @@ export default function Page() {
         tittle: '',
         bio: '',
     });
+    const dispatch = useAppDispatch();
 
     const handleInputChange = (e) => {
         setBioError('')
@@ -152,54 +155,90 @@ export default function Page() {
 
         const file = event.target.files[0];
         if (file) {
-            setProfileError(false)
+
             setSelectedAvatar(null);
             setSelectedAvatarId(null);
+
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                setProfileError("Only JPG, JPEG, and PNG files are allowed.");
+                e.target.value = null;
+                setSelectedFile(null);
+                return;
+            }
+            setProfileError('');
             setSelectedFile(file);
         }
 
     };
 
     const handleUpdateInfo = async (e) => {
+
         e.preventDefault();
-        if (!selectedAvatar || !selectedFile) {
-            setProfileError(true);
-        }
-        if (formData.tittle === '') {
-            setTtlError('Please select Title / Occupation')
+        setClicked(true);
+
+        const { tittle, bio } = formData;
+        let hasError = false;
+
+        setProfileError(null);
+
+        if (!tittle.trim()) {
+            setTtlError('Please select Title / Occupation');
+            hasError = true;
+            setClicked(false);
         } else {
-            setTtlError('')
+            setTtlError('');
         }
-        if (formData.bio === '') {
-            setBioError('please add some bio')
+        if (!bio.trim()) {
+            setBioError('Please add some bio');
+            hasError = true;
+            setClicked(false);
         } else {
-            setBioError('')
+            setBioError('');
         }
-        const data = new FormData();
 
-        data.append('title', formData.tittle);
-        data.append('bio', formData.bio);
-
-        if (selectedFile) {
-            data.append('image', selectedFile);
+        const imageSource = selectedFile || selectedAvatar;
+        console.log(imageSource);
+        if (!imageSource) {
+            setProfileError('Please upload an image or select an avatar');
+            hasError = true;
+            setClicked(false);
         }
-        if (!selectedFile && selectedAvatar) {
-            data.append('avatarUrl', selectedAvatar);
-        }
-        if (selectedAvatar || selectedFile && formData.tittle && formData.bio) {
-            try {
-                const response = await updateUserProfile(data);
 
-                // success handling
-                console.log(response);
-                // router.push('/chats');
+        if (hasError) return;
 
-            } catch (err) {
-                console.error(err);
-                setProfileError(err.message || 'Something went wrong');
+        try {
+            const data = new FormData();
+            data.append('title', tittle);
+            data.append('bio', bio);
+
+            if (selectedFile) {
+                data.append('image', selectedFile);
+            } else if (selectedAvatar) {
+                data.append('avatarUrl', selectedAvatar);
             }
-        } 
-    }
+
+            const response = await updateUserProfile(data);
+
+            if (response.status === "SUCCESS") {
+                setClicked(false);
+                toast(response.status, {
+                    description: response.message,
+                    style: { color: "#22c55e",},
+                    richColors: true,
+                });
+
+                dispatch(setUser(response.user));
+                router.push('/chats');
+            }
+        } catch (err) {
+            setClicked(false);
+            toast.error("Update Failed", {
+                description: err.message || "Something went wrong",
+                style: { color: "#ef4444" },
+            });
+        }
+    };
     return (
         <div className='w-full relative min-h-screen bg-slate-100 flex justify-center items-center p-5 max-md:p-20'>
             <Link href={'/chats'}>
@@ -275,9 +314,8 @@ export default function Page() {
                 {/* image chose section*/}
 
                 {profileError &&
-                    <h2 className='mx-5 my-3 font-semibold text-red-600 text-sm text-center'>Warning : You must have to chose a Photo or Avatar!</h2>
+                    <h2 className='mx-5 my-3 font-semibold text-red-600 text-sm text-center'>Warning : {profileError}</h2>
                 }
-
                 <div className='flex flex-col sm:flex-row justify-center items-center gap-8 my-5'>
                     <Dialog open={isOpen} onOpenChange={setIsOpen}>
                         <DialogTrigger asChild >
