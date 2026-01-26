@@ -241,7 +241,6 @@ export default function Page() {
     };
     return (
         <div className='w-full relative min-h-screen bg-slate-100 flex justify-center items-center p-5 max-md:p-20'>
-            <Link href={'/chats'}>
                 <div className='cursor-pointer fixed top-2 left-5 w-[150px] h-[80px]'>
                     <Image
                         alt='logo'
@@ -249,12 +248,10 @@ export default function Page() {
                         priority
                     />
                 </div>
-            </Link>
-
             <div className='bg-slate-50 w-[90%] md:w-2/3 lg:w-1/2 xl:w-1/3 2xl:w-[30%] pb-10 rounded'>
                 <div className='relative bg-gradient-to-r from-[#fff] to-blue-300 rounded-tr-lg rounded-tl-lg'>
                     <div className='py-4 px-5 z-10'>
-                        <Link href={'/chats'}>
+                        {/* <Link href={'/chats'}>
                             <div className='absolute text-lg top-4 text-slate-600 hover:text-slate-500'>
                                 <Tooltip>
                                     <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
@@ -266,7 +263,8 @@ export default function Page() {
                                     </TooltipContent>
                                 </Tooltip>
                             </div>
-                        </Link>
+                        </Link> */}
+                        
                         <h1 className='text-lg text-center max-md:text-md font-semibold text-gray-700 border-b border-gray-600 pb-4'>Update Account</h1>
                         {/* hero section */}
                         <div className='my-5 flex justify-center'>

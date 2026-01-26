@@ -39,9 +39,8 @@ export default function Login() {
         e.preventDefault();
         setIsClicked(true)
         const res = await SigninAuth(formData, router);
-        // console.log(res);
+        //
         if (res.status === 'SUCCESS') {
-           
             toast(res.status, {
                 style: {
                     color: "#22c55e"

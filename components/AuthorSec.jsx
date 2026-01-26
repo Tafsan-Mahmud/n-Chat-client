@@ -89,8 +89,8 @@ const AuthorSec = () => {
                                             alt='author image'
                                             width={100}
                                             height={100}
-                                            className='rounded-full border'
-                                            src={im}
+                                            className='rounded-full border shadow-xl'
+                                            src={ user?.profile_image ?user?.profile_image : im }
                                         />
                                     </div>
                                 </div>
