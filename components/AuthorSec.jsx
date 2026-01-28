@@ -26,13 +26,15 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { toast } from 'sonner';
+import { Skeleton } from "@/components/ui/skeleton"
 const im = 'https://yt3.ggpht.com/yti/ANjgQV_53OCUJNvxFfI_hbBWcFPzQRqcF6YZK-CcsvyPKXX4hho=s88-c-k-c0x00ffffff-no-rj';
 const AuthorSec = () => {
     const router = useRouter();
     const user = useAppSelector((s) => s.user?.data);
+    // const user = false
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
-
+    const [loaded, setLoaded] = useState(false);
     const handleLogout = async () => {
         if (loading) return;
         setLoading(true);
@@ -44,7 +46,6 @@ const AuthorSec = () => {
                 description: res.message,
             });
             setTimeout(() => {
-                setLoading(false)
                 router.push("/signin")
             }, 700);
         } else {
@@ -55,26 +56,48 @@ const AuthorSec = () => {
         }
     };
 
+
     return (
         <div>
             {/* <h4 className='px-8 py-3 text-xl font-semibold text-blue-800 text-center border-b mb-2'>NChat</h4> */}
             <div className='pb-7 mt-4 px-8 flex items-center gap-3'>
-                <div className='select-none'>
-                    <Image
-                        alt='author image'
-                        width={100}
-                        height={100}
-                        className='rounded-full select-none'
-                        src={user?.profile_image ? user?.profile_image : im} />
-                </div> 
+                <div className="relative w-[90px] aspect-square rounded-full overflow-hidden flex-shrink-0 select-none">
+                    {!loaded && (
+                        <Skeleton className="w-full h-full rounded-full bg-slate-200" />
+                    )}
+                    {user?.profile_image && (
+                        <Image
+                            src={user.profile_image}
+                            alt="User profile"
+                            fill
+                            sizes="90px"
+                            className={`object-cover transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"
+                                }`}
+                            onLoadingComplete={() => setLoaded(true)}
+                            loading="lazy"
+                        />
+                    )}
+                </div>
                 <div className='flex w-full justify-between'>
                     <div>
-                        <p className='text-xl font-semibold text-slate-700'>{
-                            !user ? 'xxxxxxxx' : user?.name
-                        }<span className='text-sm text-blue-800 cursor-pointer select-none'> @NChat</span></p>
-                        <p className='text-md text-slate-600'>{
-                            !user ? 'xxxxxxxx' : user?.title
-                        }</p>
+                        {user ? (
+                            <>
+                                <p className="text-xl font-semibold text-slate-700">
+                                    {user.name}
+                                    <span className="text-sm text-blue-800 cursor-pointer select-none">
+                                        {" "}@NChat
+                                    </span>
+                                </p>
+                                <p className="text-md text-slate-600">
+                                    {user.title}
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <Skeleton className="h-5 w-60 mb-3 bg-slate-200" />
+                                <Skeleton className="h-3 w-40 bg-slate-200" />
+                            </>
+                        )}
                     </div>
                     <div className='flex items-center border-l pl-2'>
                         <Sheet>
@@ -84,19 +107,41 @@ const AuthorSec = () => {
                             <SheetContent side='left' className="pb-10 bg-slate-100 min-w-[25%] flex-1 overflow-y-auto h-full custom-scrollbar-drawer">
                                 <SheetTitle className="text-center my-3 mx-8 text-lg pb-2 border-b">Settings</SheetTitle>
                                 <div className='flex justify-center'>
-                                    <div className='w-25 h-25 flex justify-center items-center'>
-                                        <Image
-                                            alt='author image'
-                                            width={100}
-                                            height={100}
-                                            className='rounded-full border shadow-xl'
-                                            src={ user?.profile_image ?user?.profile_image : im }
-                                        />
+                                    <div className="relative w-[100px] aspect-square rounded-full overflow-hidden flex-shrink-0 select-none">
+
+                                        {!loaded && (
+                                            <Skeleton className="w-full h-full rounded-full bg-slate-200" />
+                                        )}
+                                        {user?.profile_image && (
+                                            <Image
+                                                src={user.profile_image}
+                                                alt="User profile"
+                                                fill
+                                                sizes="100px"
+                                                className={`object-cover transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"
+                                                    }`}
+                                                onLoadingComplete={() => setLoaded(true)}
+                                                loading="lazy"
+                                            />
+                                        )}
                                     </div>
                                 </div>
-                                <div className='text-center mb-4'>
-                                    <p className='text-2xl font-semibold text-slate-800'>{!user ? 'xxxxxxxx' : user?.name}</p>
-                                    <p className='text-sm text-slate-600'>{!user ? 'xxxxxxxx' : user?.title}</p>
+                                <div className="text-center mb-4">
+                                    {user ? (
+                                        <>
+                                            <p className="text-2xl font-semibold text-slate-800">
+                                                {user.name}
+                                            </p>
+                                            <p className="text-sm text-slate-600">
+                                                {user.title}
+                                            </p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Skeleton className="h-7 w-48 mx-auto mb-2" />
+                                            <Skeleton className="h-4 w-36 mx-auto" />
+                                        </>
+                                    )}
                                 </div>
                                 <div className='mx-4'>
                                     <h5 className='text-lg font-semibold text-slate-600 mb-2'>Customisation</h5>
@@ -113,7 +158,7 @@ const AuthorSec = () => {
                                                 <p className='w-full pb-3 border-b font-semibold'>Dark Mode</p>
                                             </div>
                                         </div>
-                                       <div className='w-full'>
+                                        <div className='w-full'>
                                             <div className='flex text-slate-600 p-2 gap-3 cursor-pointer hover:bg-slate-200 rounded'>
                                                 <div><BellRing /></div>
                                                 <p className='w-full pb-3 border-b font-semibold'>Notification & Sound</p>

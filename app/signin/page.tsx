@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Loader2Icon } from "lucide-react"
 import { SigninAuth } from "@/apis/handleSignin"
 import { toast } from "sonner"
+import { uriAuth } from "@/public/apiuri/uri"
 
 export default function Login() {
     const router = useRouter();
@@ -35,6 +36,7 @@ export default function Login() {
     }, []);
 
 
+
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
         setIsClicked(true)
@@ -48,7 +50,7 @@ export default function Login() {
                 description: res.message,
                 richColors: true,
             });
-            setIsClicked(false)
+            // setIsClicked(false)
         }
         if (res.status === "PROCESS!") {
             setIsClicked(false)
@@ -73,6 +75,27 @@ export default function Login() {
 
     }, [formData, router]);
 
+    // forgot Password route Allowness
+    const handleForgotClick = async () => {
+        const res = await fetch(`${uriAuth}/forgot-password/init`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+
+        if (!res.ok) {
+            toast('ERROR!', {
+                style: {
+                    color: "#f43f5e"
+                },
+                description: 'Something went wrong!. try again bit later...',
+                richColors: true,
+            });
+            return;
+        }
+
+        router.push('/forgotPass');
+    };
+
     return (
         <div className="min-h-screen relative flex flex-col">
             <Multibg />
@@ -91,7 +114,7 @@ export default function Login() {
                         {/* Card Header */}
                         <CardHeader>
                             <CardTitle className="text-2xl text-center mb-2">Sign In</CardTitle>
-                            <CardDescription className="text-center">
+                            <CardDescription className="text-center pb-5">
                                 Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus, quam. Numquam eligendi soluta.
                             </CardDescription>
                         </CardHeader>
@@ -131,12 +154,11 @@ export default function Login() {
                                 </div>
                             </div>
                             <div className="flex justify-end mt-3">
-                                <Link
-                                    href="/forgotPass"
-                                    className="text-sm underline-offset-4 hover:underline"
+                                <span onClick={handleForgotClick}
+                                    className="text-sm underline-offset-4 hover:underline cursor-pointer"
                                 >
                                     Forgot your password?
-                                </Link>
+                                </span>
 
                             </div>
 

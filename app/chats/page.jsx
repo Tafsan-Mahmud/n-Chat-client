@@ -7,6 +7,7 @@ import Image from 'next/image';
 import logo from '../../public/images/logo/logoName.png'
 import LottieMessage from '../../components/LottieMessage';
 import { uri } from '../../components/var';
+import { Skeleton } from "@/components/ui/skeleton"
 const Page = () => {
 
     const [selectedChatId, setSelectedChatId] = useState(0);
@@ -33,6 +34,7 @@ const Page = () => {
                             />
                         </div>
                         <div className='text-center animate-fadeInUpWithDelay'>
+                            
                             <span className='text-5xl font-semibold text-blue-800'>NChat Web </span>
                             <p className='text-slate-600 text-xl'>Chose a person to start the conversation</p>
                         </div>

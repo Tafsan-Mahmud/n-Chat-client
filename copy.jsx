@@ -1,114 +1,90 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { uriAuth } from './public/apiuri/uri';
+'use client'
+import React, { useEffect, useRef, useState } from 'react';
+import { Mail, ServerCog } from 'lucide-react';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import logo from '@/public/images/logo/logoName.png'
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+const Page = () => {
+    const router = useRouter();
+    const [tglUi, setTglUi] = useState(true);
+    const otpInputRef = useRef<HTMLInputElement>(null);
 
-/**
- * SECURE ROUTE GATEKEEPER
- * Handles Authentication and Profile Completion redirection.
- */
-
-const PROTECTED_ROUTES = ['/chats', '/accountSetting', '/userUpdateInfo'];
-const AUTH_ROUTES = ['/signin', '/register', '/authOTP', '/forgotPass'];
-const UPDATE_INFO_ROUTE = '/userUpdateInfo';
-
-export async function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
-  const pathname = request.nextUrl.pathname;
-  const validationUrl = `${uriAuth}/validate-token`;
-
-  /**
-   * Helper function to clone the current URL and change the path.
-   */
-  const getRedirectUrl = (path: string) => {
-    const url = request.nextUrl.clone();
-    url.pathname = path;
-    return url;
-  };
-
-  // A. Logic for PROTECTED ROUTES
-  if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    // 1. If no token is present, redirect to signin
-    if (!token) {
-      return NextResponse.redirect(getRedirectUrl('/signin'), 302);
-    }
-
-    try {
-      // 2. Call backend to validate token and fetch profile status
-      const response = await fetch(validationUrl, {
-        method: 'GET',
-        headers: { 'Cookie': `token=${token}` },
-      });
-
-      // 3. Handle invalid or expired sessions
-      if (response.status !== 200) {
-        const redirectResponse = NextResponse.redirect(getRedirectUrl('/signin'), 302);
-        redirectResponse.cookies.delete('token');
-        return redirectResponse;
-      }
-
-      // 4. Extract profile status
-      const data = await response.json();
-      const isProfileComplete = data.isProfileComplete;
-
-      // --- REDIRECTION ENFORCEMENT ---
-      
-      // If profile is NOT complete AND user is NOT on userUpdateInfo -> Force Redirect to setup
-      if (!isProfileComplete && pathname !== UPDATE_INFO_ROUTE) {
-        return NextResponse.redirect(getRedirectUrl(UPDATE_INFO_ROUTE), 302);
-      }
-
-      // If profile IS complete AND user tries to access userUpdateInfo manually -> Send to chats
-      if (isProfileComplete && pathname === UPDATE_INFO_ROUTE) {
-        return NextResponse.redirect(getRedirectUrl('/chats'), 302);
-      }
-
-      return NextResponse.next();
-
-    } catch (err) {
-      console.error('Middleware validation error:', err);
-      // Fail secure: if validation fails, send to signin
-      return NextResponse.redirect(getRedirectUrl('/signin'), 302);
-    }
-  }
-
-  // B. Logic for AUTH ROUTES (Prevent logged-in users from seeing signin/register)
-  if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
-    if (token) {
-      try {
-        const response = await fetch(validationUrl, {
-          method: 'GET',
-          headers: { 'Cookie': `token=${token}` },
-        });
-
-        if (response.status === 200) {
-          const data = await response.json();
-          // Redirect based on whether their profile is finished or not
-          const destination = data.isProfileComplete ? '/chats' : UPDATE_INFO_ROUTE;
-          return NextResponse.redirect(getRedirectUrl(destination), 302);
-        }
-      } catch (err) {
-        console.error('Auth route validation error:', err);
-      }
-
-      // If token exists but is invalid, clear it and allow the auth page to load
-      const nextResponse = NextResponse.next();
-      nextResponse.cookies.delete('token');
-      return nextResponse;
-    }
-  }
-
-  return NextResponse.next();
-}
-
-// 3. Matcher configuration
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for:
-     * - api routes (excluding /api/auth)
-     * - static files (_next/static, _next/image)
-     * - public assets (images, favicon.ico)
-     */
-    '/((?!api/(?!auth)|_next/static|_next/image|images|favicon.ico|.*\\.png$).*)',
-  ],
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (otpInputRef.current) {
+                otpInputRef.current.focus();
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [tglUi]);
+    return (
+        <div className='relative w-full min-h-screen bg-slate-50 flex flex-col justify-center items-center'>
+            <Link href={'/chats'}>
+                <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+                    <Image
+                        alt='logo'
+                        src={logo}
+                    />
+                </div>
+            </Link>
+            {
+                tglUi ?
+                    <Mail className='w-25 h-25 text-slate-500' /> : <ServerCog className='w-25 h-25 text-slate-500' />
+            }
+            {
+                tglUi ? <><h1 className='text-4xl text-center font-semibold text-slate-600 mt-6'>Forgot your password?</h1>
+                    <p className='mt-5 text-slate-500 '>Enter your email here, we will send you a OTP for change password</p></> : <><h1 className='text-4xl text-center font-semibold text-slate-600 mt-6'>Enter The OTP</h1>
+                    <p className='mt-5 text-slate-500 '>Enter 6 digit OTP that we sent to your email check mail </p></>
+            }
+            <div className='w-[24%] mt-7 py-8 px-6  bg-white rounded-md'>
+                {
+                    tglUi &&
+                    <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input type="email" className="w-full mt-2 bg-white mb-5" id="email" placeholder="enter email address" />
+                        <Label htmlFor="email">Re-enter Email</Label>
+                        <Input type="email" className="w-full mt-2 bg-white" id="email" placeholder="re-enter email address" />
+                        <Button onClick={() => setTglUi(false)} className="bg-blue-800 mt-5 w-full hover:bg-blue-900 cursor-pointer">Submit</Button>
+                    </div>
+                }
+                {
+                    !tglUi &&
+                    <div>
+                        <div className="mt-" >
+                            <InputOTP
+                                maxLength={6}
+                                className="w-full justify-between"
+                                id="tabs-demo-current"
+                                ref={otpInputRef}
+                            >
+                                <InputOTPGroup className="w-full justify-between">
+                                    <InputOTPSlot className="rounded-sm w-12 h-12 text-lg" index={0} />
+                                    <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={1} />
+                                    <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={2} />
+                                    <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={3} />
+                                    <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={4} />
+                                    <InputOTPSlot className="border rounded-sm w-12 h-12 text-lg" index={5} />
+                                </InputOTPGroup>
+                            </InputOTP>
+                        </div>
+                        <Button onClick={() => setTglUi(true)} className="bg-blue-800 mt-10 w-full hover:bg-blue-900 cursor-pointer">Verify</Button>
+                        <p className='mt-3 cursor-pointer underline text-slate-500'>Resend OTP</p>
+                    </div>
+                }
+            </div>
+            <p></p>
+        </div>
+    );
 };
+
+export default Page;
+

@@ -18,7 +18,30 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = AUTH_ROUTES.some(route =>
     pathname.startsWith(route)
   );
-  
+
+  // ─────────────────────────────────────
+  //  Forgot Password PAGE GUARD (VERY IMPORTANT)
+  // ─────────────────────────────────────
+
+
+  if (pathname.startsWith('/forgotPass')) {
+    const forgotAllowed = request.cookies.get('forgot_allowed')?.value;
+
+    if (!forgotAllowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/signin';
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // ─────────────────────────────────────
+  //  Forgot Password PAGE GUARD (VERY IMPORTANT)
+  // ─────────────────────────────────────
+
+
+
+
   // ─────────────────────────────────────
   //  OTP PAGE GUARD (VERY IMPORTANT)
   // ─────────────────────────────────────
