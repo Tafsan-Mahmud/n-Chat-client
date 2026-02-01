@@ -27,6 +27,7 @@ export const registerAuth = async (data: RegistrationFormData, router: AppRouter
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify(dataToSend),
         });
         const responseData = await response.json();

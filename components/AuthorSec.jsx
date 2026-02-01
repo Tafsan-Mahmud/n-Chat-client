@@ -73,7 +73,7 @@ const AuthorSec = () => {
                             sizes="90px"
                             className={`object-cover transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"
                                 }`}
-                            onLoadingComplete={() => setLoaded(true)}
+                            onLoad={() => setLoaded(true)}
                             loading="lazy"
                         />
                     )}

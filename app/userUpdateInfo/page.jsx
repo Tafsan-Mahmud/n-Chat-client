@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import Link from 'next/link';
-import { useAppDispatch } from '@/store'; // or wherever your store is
+import { useAppDispatch, useAppSelector } from '@/store'; // or wherever your store is
 import { setUser } from '@/store/userSlice';
 import {
     Command,
@@ -91,7 +91,7 @@ const tittle = [
 export default function Page() {
 
     const router = useRouter();
-
+    const user = useAppSelector((s) => s.user?.data);
     const [open, setOpen] = useState(false);
     const [value, setValue] = useState("");
 
@@ -486,13 +486,12 @@ export default function Page() {
                         />
                     </Label>
                 </div>
-
                 {/* imputs section */}
                 <div className='flex flex-col justify-center items-center px-5 py-4'>
                     <div className='w-full'>
                         <div className="">
                             <Label htmlFor="name" className='text-slate-700'>Name - <span className='text-gray-400 font-normal'>( not editable right now! )</span></Label>
-                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" readOnly required value='Abu Hasnat Nobin' />
+                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" readOnly required value={user?.name} />
                             <Label htmlFor="title" className='text-slate-700'>Title / Occupation
                                 {
                                     ttlError &&

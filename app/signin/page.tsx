@@ -17,7 +17,7 @@ import Image from "next/image"
 import Multibg from "@/components/multibg"
 import { useCallback, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, Loader2Icon } from "lucide-react"
+import { Eye, EyeOff, Loader2, Loader2Icon } from "lucide-react"
 import { SigninAuth } from "@/apis/handleSignin"
 import { toast } from "sonner"
 import { uriAuth } from "@/public/apiuri/uri"
@@ -26,6 +26,8 @@ export default function Login() {
     const router = useRouter();
     const [showPass, setShowPass] = useState(false);
     const [isClicked, setIsClicked] = useState(false);
+    const [loading, setLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -77,24 +79,41 @@ export default function Login() {
 
     // forgot Password route Allowness
     const handleForgotClick = async () => {
-        const res = await fetch(`${uriAuth}/forgot-password/init`, {
-            method: 'POST',
-            credentials: 'include',
-        });
+        if (loading) return; // prevent spam
 
-        if (!res.ok) {
-            toast('ERROR!', {
-                style: {
-                    color: "#f43f5e"
-                },
-                description: 'Something went wrong!. try again bit later...',
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${uriAuth}/forgot-password/init`, {
+                method: 'POST',
+                credentials: 'include',
+            });
+
+            if (!res.ok) {
+                toast('ERROR!', {
+                    style: { color: "#f43f5e" },
+                    description: 'Something went wrong! Try again later…',
+                    richColors: true,
+                });
+
+                setLoading(false);
+                return;
+            }
+
+            router.push('/forgotPass');
+
+        } catch (err) {
+            toast('SERVER OFFLINE', {
+                style: { color: "#f43f5e" },
+                description: 'Cannot connect to server. Please try again later.',
                 richColors: true,
             });
-            return;
-        }
 
-        router.push('/forgotPass');
+            setLoading(false);
+        }
     };
+
+
 
     return (
         <div className="min-h-screen relative flex flex-col">
@@ -154,12 +173,15 @@ export default function Login() {
                                 </div>
                             </div>
                             <div className="flex justify-end mt-3">
-                                <span onClick={handleForgotClick}
-                                    className="text-sm underline-offset-4 hover:underline cursor-pointer"
+                                <span
+                                    onClick={handleForgotClick}
+                                    className={`text-sm underline-offset-4 flex items-center gap-2
+      ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:underline cursor-pointer'}
+    `}
                                 >
-                                    Forgot your password?
+                                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    {loading ? 'Forgot your password...' : 'Forgot your password?'}
                                 </span>
-
                             </div>
 
                         </CardContent>
