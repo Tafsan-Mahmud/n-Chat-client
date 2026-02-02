@@ -24,6 +24,14 @@ export const SigninAuth = async (data: signinData, router: AppRouterInstance) =>
 
         const responseData = await response.json();
 
+
+        if (response.status === 429) {
+            return {
+                status: 429,
+                message: responseData.message,
+            };
+        }
+
         if (!response.ok) {
             if (responseData.status === 'PROCESS!') {
                 router.push(responseData.redirect);

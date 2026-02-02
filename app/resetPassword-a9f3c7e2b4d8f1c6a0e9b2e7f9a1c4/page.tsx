@@ -9,6 +9,7 @@ import logo from '@/public/images/logo/logoName.png';
 import { Loader2Icon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { uriAuth } from '@/public/apiuri/uri';
+import { toast } from 'sonner';
 
 export default function ResetPasswordPage() {
   const params = useSearchParams();
@@ -24,7 +25,7 @@ export default function ResetPasswordPage() {
 
 
   useEffect(() => {
-    if (!token){
+    if (!token) {
       return (setUiLoading(false), setValid(false))
     };
 
@@ -64,6 +65,16 @@ export default function ResetPasswordPage() {
 
     setLoading(false);
 
+    if (res?.status === 429) {
+      setLoading(false);
+      return toast("Warning!", {
+        style: {
+          color: "#f43f5e"
+        },
+        description: data.message,
+        richColors: true,
+      });
+    }
     // Token invalid → show invalid screen
     if (!res.ok && data.code === 'INVALID_TOKEN') {
       setValid(false);
@@ -71,6 +82,13 @@ export default function ResetPasswordPage() {
     }
 
     if (res.ok) {
+      toast("SUCCESS", {
+        style: {
+          color: "#22c55e"
+        },
+        description: 'Password reset successfull.',
+        richColors: true,
+      });
       router.push('/signin');
     } else {
       setError('Reset failed. Please try again.');

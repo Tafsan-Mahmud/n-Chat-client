@@ -68,6 +68,16 @@ export default function AuthOTP() {
                 email: email,
             };
             const response = await OTPAuth(data, router);
+
+            if (response?.status === 429) {
+                toast("Warning!", {
+                    style: {
+                        color: "#f43f5e"
+                    },
+                    description: response.message,
+                    richColors: true,
+                });
+            }
             if (response.status === 'SUCCESS') {
 
                 setUiLoader(true);
@@ -78,7 +88,7 @@ export default function AuthOTP() {
                     description: response.message,
                     richColors: true,
                 });
-                
+
                 const { _id, email, name, active_Status, profile_image, title, bio } = response;
                 const user = { _id, email, name, active_Status, profile_image, title, bio };
                 dispatch(setUser(user));
@@ -105,7 +115,7 @@ export default function AuthOTP() {
             {
                 uiLoader ? <>
                     <div className="flex justify-center items-center h-screen">
-                        <LottieLoading/>
+                        <LottieLoading />
                     </div></> :
 
                     <div className="flex-grow flex flex-col items-center justify-center p-4">

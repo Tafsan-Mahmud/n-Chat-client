@@ -87,6 +87,17 @@ export default function Register() {
                 setIsClicked(true)
                 setCountryError(false)
                 const res = await registerAuth(formData, router);
+
+                if(res?.status === 429){
+                      toast("Warning!", {
+                            style: {
+                                color: "#f43f5e"
+                            },
+                            description: res.message,
+                            richColors: true,
+                        });
+                }
+                
                 if (res && typeof res === 'object' && 'status' in res && 'message' in res) {
                     if (res.status === 'SUCCESS') {
                         setFormData({

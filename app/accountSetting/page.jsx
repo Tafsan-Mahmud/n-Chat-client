@@ -1,135 +1,373 @@
 'use client'
-import { ChevronLeft, CloudUpload } from 'lucide-react';
-import { redirect, useRouter } from 'next/navigation';
-import React, { useState } from 'react';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
-import logo from '../../public/images/logo/logoName.png';
-import Image from 'next/image';
+
+import { ChevronLeft, Camera, CloudUpload, Loader2Icon, Eye, EyeOff } from 'lucide-react'
+import React, { useState, useCallback, use, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useAppSelector } from "@/store"
+import { motion } from "framer-motion"
+
+import logo from '../../public/images/logo/logoName.png'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import Link from 'next/link';
+import { Skeleton } from "@/components/ui/skeleton"
+const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj'
 
-const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj';
-
-// Changed from 'const page = () => { ... }' to a named function export
 export default function Page() {
-    const router = useRouter();
-    const [selectedFile, setSelectedFile] = useState(null);
 
-    const handleFileChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
+  const user = useAppSelector((s) => s.user?.data)
 
-    return (
-        <div className='w-full relative min-h-[100vh] bg-slate-100 flex justify-center items-center'>
-           <Link href={'/chats'}>
-            <div className='cursor-pointer absolute top-2 left-5 w-[150px] h-[80px]'>
+
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [preview, setPreview] = useState('')
+  const [topBarImage, setTopBarImage] = useState('')
+  const [imageError, setImageError] = useState("")
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const [isPersonalLoading, setIsPersonalLoading] = useState(false)
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false)
+
+  const [show, setShow] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  })
+
+  const [personalData, setPersonalData] = useState({
+    name: "",
+    title: "",
+    bio: ""
+  })
+
+  useEffect(() => {
+    if (user) {
+      setPreview(user.profile_image);
+      setTopBarImage(user.profile_image);
+      setPersonalData({
+        name: user.name || "",
+        title: user.title || "",
+        bio: user.bio || ""
+      })
+    }
+  }, [user])
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  })
+
+  const [passwordError, setPasswordError] = useState("")
+
+  const checks = {
+    length: passwordData.newPassword.length >= 8,
+    upper: /[A-Z]/.test(passwordData.newPassword),
+    number: /[0-9]/.test(passwordData.newPassword),
+    special: /[^A-Za-z0-9]/.test(passwordData.newPassword)
+  }
+
+  const isPasswordEmpty = !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword;
+
+  const handlePersonalChange = useCallback((e) => {
+    const { id, value } = e.target
+    setPersonalData(prev => ({ ...prev, [id]: value }))
+  }, [])
+
+  const handlePasswordChange = useCallback((e) => {
+    const { id, value } = e.target
+    setPasswordData(prev => ({ ...prev, [id]: value }))
+  }, [])
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const allowed = ["image/jpeg", "image/jpg", "image/png"]
+
+    if (!allowed.includes(file.type)) {
+      setImageError("Only JPG, JPEG, PNG files allowed")
+      return
+    }
+
+    setImageError("")
+    setSelectedFile(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const isPersonalChanged =
+    personalData.name !== (user?.name || "") ||
+    personalData.title !== (user?.title || "") ||
+    personalData.bio !== (user?.bio || "") ||
+    selectedFile !== null
+
+  const handlePersonalSubmit = async () => {
+    if (!isPersonalChanged) return
+    setIsPersonalLoading(true)
+    await new Promise(res => setTimeout(res, 1500))
+    setIsPersonalLoading(false)
+  }
+
+  const handlePasswordSubmit = async () => {
+
+    if (!passwordData.currentPassword ||
+      !passwordData.newPassword ||
+      !passwordData.confirmPassword) {
+      setPasswordError("All password fields are required.")
+      return
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("New password and confirm password do not match.")
+      return
+    }
+
+    if (!checks.length || !checks.upper || !checks.number || !checks.special) {
+      setPasswordError("Password is too weak, please enter strong password!")
+      return
+    }
+
+    setPasswordError("")
+    setIsPasswordLoading(true)
+    await new Promise(res => setTimeout(res, 1500))
+    setIsPasswordLoading(false)
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-100">
+
+      {/* Navbar */}
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center">
+
+          <Link href="/chats">
+            <Image alt="logo" src={logo} className="w-28 cursor-pointer" />
+          </Link>
+
+          <div className="flex items-center gap-4">
+
+            <Link
+              href="/chats"
+              className="flex items-center gap-2 text-sm text-blue-800 font-medium bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-md"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back to Chats
+            </Link>
+
+            <div className="w-12 h-12 relative">
+              {!imgLoaded && (
+                <Skeleton className="absolute inset-0 rounded-full bg-slate-200" />
+              )}
+
+              {topBarImage && (
                 <Image
-                alt='logo'
-                src={logo}
+                  src={topBarImage}
+                  alt="profile"
+                  fill
+                  onLoad={() => setImgLoaded(true)}
+                  className="rounded-full object-cover border"
                 />
+              )}
             </div>
-           </Link>
-            <div className='bg-slate-50 w-[35%] min-h-[92vh] rounded py-4 px-8 relative'>
-                <Link href={'/chats'}>
-                <div className='absolute text-lg top-6 text-slate-600 hover:text-slate-500'>
-                    <Tooltip>
-                        <TooltipTrigger className="flex justify-center items-center gap-1 cursor-pointer">
-                            <ChevronLeft />
-                            <span>Home</span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            <p>Back To Chats</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </div>
-                </Link>
-                <h1 className='text-2xl text-center font-semibold text-blue-800 border-b pb-4'>Account Settings</h1>
-                {/* personal details */}
-                <div className='my-4'>
-                    <h4 className='text-xl font-semibold text-slate-600 mt-5 mb-3'>Personal Details</h4>
-                    <div className='bg-slate-100 py-6 px-4 rounded-md flex gap-4'>
-                        <div className='flex justify-start'>
-                            <div className='flex flex-col justify-center items-center gap-3 border-r pr-3'>
-                                <div className='relative w-[100px] h-[100px] flex justify-center items-center'>
-                                    <Image
-                                        alt='author image'
-                                        fill
-                                        className='rounded-full border object-cover'
-                                        src={im}
-                                    />
-                                </div>
-                                <div className="">
-                                    <label
-                                        htmlFor="file-input"
-                                        className="cursor-pointer border-blue-800 bg-blue-100 hover:bg-blue-200 border-1 px-2 py-1 rounded-sm flex justify-center items-center gap-1 w-35 transition-colors duration-250 text-xs"
-                                    >
-                                        <CloudUpload className='w-5 h-5' />
-                                        {selectedFile ? selectedFile.name : "Choose a photo"}
-                                    </label>
-                                    <input
-                                        id="file-input"
-                                        type="file"
-                                        className="hidden"
-                                        onChange={handleFileChange}
-                                    />
-                                </div>
-                                <Button className='bg-blue-800 w-full rounded-sm cursor-pointer hover:bg-blue-900'>Upload</Button>
-                            </div>
-                        </div>
-                        <div className='w-full'>
-                            <div className="">
-                                <Label htmlFor="name" className='text-slate-700'>Name</Label>
-                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="name" placeholder="your name" />
 
-                                <Label htmlFor="title" className='text-slate-700'>Title</Label>
-                                <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="text" id="title" placeholder="your title" />
-
-                                <Label htmlFor="bio">Your Bio <span className='text-slate-500'>'optional'</span></Label>
-                                <Textarea placeholder="Type your bio here." className='text-slate-700 mb-4 mt-2 bg-slate-50' id="bio" />
-                            </div>
-                            <Button className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Save Change</Button>
-                        </div>
-                        <div>
-
-                        </div>
-                    </div>
-
-                </div>
-                {/* Password and Security */}
-                <div className='my-4'>
-                    <h4 className='text-xl font-semibold text-slate-600 mt-7 mb-3'>Password and Security</h4>
-                    <div className='bg-slate-100 py-6 px-4 rounded-md'>
-                        <div className="">
-                            <Label htmlFor="currentpass" className='text-slate-700'>Current Password</Label>
-                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="password" id="currentpass" placeholder="enter current password" />
-
-                            <Label htmlFor="newpass" className='text-slate-700'>New Password</Label>
-                            <Input className='text-slate-700 mb-4 mt-2 bg-slate-50' type="password" id="newpass" placeholder="enter new password" />
-
-                            <Label htmlFor="confirmpass" className='text-slate-700'>Confirm Password</Label>
-                            <Input className='text-slate-700 mb-3 mt-2 bg-slate-50' type="password" id="confirmpass" placeholder="enter confirm password" />
-
-                            <div className='flex justify-end'>
-                                <Link href={'/forgotPass'}> 
-                                <p className='text-slate-600 w-30 cursor-pointer hover:text-blue-700 underline my-4'>forgot password</p>
-                                </Link>
-
-                            </div>
-                        </div>
-                        <Button className='bg-blue-800 rounded-sm w-full cursor-pointer hover:bg-blue-900'>Change Password</Button>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-    );
-};
+      </div>
+
+      {/* Cards */}
+      <div className="max-w-6xl mx-auto px-4 mt-10 flex flex-col lg:flex-row gap-8 pb-12">
+
+        {/* PERSONAL */}
+        <div className="bg-white rounded-xl border w-full max-w-lg flex flex-col">
+
+          <div className="flex items-center gap-3 px-6 py-4 border-b">
+            <div className="w-[3px] h-5 bg-blue-800 rounded"></div>
+            <h3 className="font-semibold text-lg">Personal Information</h3>
+          </div>
+
+          <div className="p-6 flex flex-col flex-1">
+
+            {/* IMAGE UPLOAD */}
+            <div className="flex flex-col items-center mb-6 gap-4">
+
+              <label htmlFor="file-input" className="relative group cursor-pointer">
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border ">
+                  {!preview ? (
+                    <Skeleton className="w-full h-full rounded-full bg-slate-200" />
+                  ) : (
+                    <Image
+                      src={preview}
+                      fill
+                      alt="avatar"
+                      className="object-cover shadow-sm"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </label>
+
+              <label htmlFor="file-input" className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 cursor-pointer transition hover:bg-blue-200 font-medium text-sm">
+                <CloudUpload className="w-5 h-5 group-hover:-translate-y-1 transition" />
+                Change photo
+              </label>
+
+              {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
+
+              <input id="file-input" type="file" className="hidden" onChange={handleFileChange} />
+            </div>
+            {
+              personalData.bio ?
+                <div>
+                  <Label>Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="Your full name"
+                    value={personalData.name}
+                    onChange={handlePersonalChange} className="mb-4 mt-2" />
+
+                  <Label>Title</Label>
+                  <Input
+                    id="title"
+                    placeholder="Your title"
+                    value={personalData.title}
+                    onChange={handlePersonalChange} className="mb-4 mt-2" />
+
+                  <Label>Bio</Label>
+                  <Textarea
+                    id="bio"
+                    placeholder="Write a short bio..."
+                    value={personalData.bio}
+                    onChange={handlePersonalChange}
+                    className="mb-6 mt-2" />
+                </div> :
+                <>
+                  {/* Name */}
+                  <Skeleton className="h-4 w-25 mb-2 rounded-sm" />
+                  <Skeleton className="h-9 w-full mb-4 rounded-sm" />
+
+                  {/* Title */}
+                  <Skeleton className="h-4 w-20 mb-2 rounded-sm" />
+                  <Skeleton className="h-9 w-full mb-4" />
+
+                  {/* Bio */}
+                  <Skeleton className="h-4 w-15 mb-2 rounded-sm" />
+                  <Skeleton className="h-24 w-full mb-6" />
+                </>
+            }
+            <div className="mt-auto">
+              <Button
+                disabled={!isPersonalChanged || isPersonalLoading}
+                onClick={handlePersonalSubmit}
+                className="w-full bg-blue-800 hover:bg-blue-900"
+              >
+                {isPersonalLoading ? (
+                  <>
+                    <Loader2Icon className="animate-spin mr-2" />
+                    Please wait...
+                  </>
+                ) : "Save Changes"}
+              </Button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* PASSWORD */}
+        <div className="bg-white rounded-xl border w-full max-w-lg flex flex-col">
+
+          <div className="flex items-center gap-3 px-6 py-4 border-b">
+            <div className="w-[3px] h-5 bg-blue-800 rounded"></div>
+            <h3 className="font-semibold text-lg">Password & Security</h3>
+          </div>
+          <div className="p-6 flex flex-col flex-1">
+
+            {/* CURRENT PASSWORD */}
+            <Label>Current Password</Label>
+            <div className="relative mt-2 mb-4">
+              <Input
+                id="currentPassword"
+                placeholder="Enter current password"
+                type={show.current ? "text" : "password"}
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(prev => ({ ...prev, current: !prev.current }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-800"
+              >
+                {show.current ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {/* NEW PASSWORD */}
+            <Label>New Password</Label>
+            <div className="relative mt-2">
+              <Input
+                id="newPassword"
+                placeholder="Enter new password"
+                type={show.new ? "text" : "password"}
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(prev => ({ ...prev, new: !prev.new }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-800"
+              >
+                {show.new ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <motion.ul className="text-sm mb-4 mt-2 space-y-1">
+              <li className={checks.length ? "text-green-600" : "text-slate-400"}>• 8+ characters</li>
+              <li className={checks.upper ? "text-green-600" : "text-slate-400"}>• Uppercase letter</li>
+              <li className={checks.number ? "text-green-600" : "text-slate-400"}>• Number</li>
+              <li className={checks.special ? "text-green-600" : "text-slate-400"}>• Special character</li>
+            </motion.ul>
+
+            {/* CONFIRM PASSWORD */}
+            <Label>Confirm Password</Label>
+            <div className="relative mt-2 mb-3">
+              <Input
+                id="confirmPassword"
+                placeholder="Confirm new password"
+                type={show.confirm ? "text" : "password"}
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(prev => ({ ...prev, confirm: !prev.confirm }))}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-800"
+              >
+                {show.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {passwordError && <p className="text-red-500 text-sm mb-4">{passwordError}</p>}
+
+            <div className="mt-auto">
+              <Button
+                disabled={isPasswordEmpty || isPasswordLoading}
+                onClick={handlePasswordSubmit}
+                className="w-full bg-blue-800 hover:bg-blue-900"
+              >
+                {isPasswordLoading ? (
+                  <>
+                    <Loader2Icon className="animate-spin mr-2" />
+                    Please wait...
+                  </>
+                ) : "Update Password"}
+              </Button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  )
+}

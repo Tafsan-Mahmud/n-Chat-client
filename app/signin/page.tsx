@@ -43,6 +43,17 @@ export default function Login() {
         e.preventDefault();
         setIsClicked(true)
         const res = await SigninAuth(formData, router);
+
+        if (res?.status === 429) {
+            setIsClicked(false)
+            return toast("Warning!", {
+                style: {
+                    color: "#f43f5e"
+                },
+                description: res.message,
+                richColors: true,
+            });
+        }
         //
         if (res.status === 'SUCCESS') {
             toast(res.status, {
@@ -88,7 +99,19 @@ export default function Login() {
                 method: 'POST',
                 credentials: 'include',
             });
+            const responseData = await res.json();
 
+            if (res?.status === 429) {
+                setLoading(false);
+                return toast("Warning!", {
+                    style: {
+                        color: "#f43f5e"
+                    },
+                    description: responseData.message,
+                    richColors: true,
+                });
+
+            }
             if (!res.ok) {
                 toast('ERROR!', {
                     style: { color: "#f43f5e" },
@@ -175,10 +198,7 @@ export default function Login() {
                             <div className="flex justify-end mt-3">
                                 <span
                                     onClick={handleForgotClick}
-                                    className={`text-sm underline-offset-4 flex items-center gap-2
-      ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:underline cursor-pointer'}
-    `}
-                                >
+                                    className={`text-sm underline-offset-4 flex items-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:underline cursor-pointer'} `} >
                                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                                     {loading ? 'Forgot your password...' : 'Forgot your password?'}
                                 </span>

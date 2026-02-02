@@ -19,6 +19,13 @@ export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
             body: JSON.stringify(data),
         });
         const responseData = await response.json();
+        
+        if (response.status === 429) {
+            return {
+                status: 429,
+                message: responseData.message,
+            };
+        }
         if (!response.ok) {
             if (responseData.redirect === '/register') {
                 sessionStorage.removeItem('resusrmail');
@@ -30,7 +37,7 @@ export const OTPAuth = async (data: otpData, router: AppRouterInstance) => {
                 return (responseData || 'Network response was not ok');
             }
         } else {
-            if (responseData.status === 'SUCCESS'){
+            if (responseData.status === 'SUCCESS') {
                 sessionStorage.removeItem('resusrmail');
                 sessionStorage.removeItem('resusrmailmsk');
                 sessionStorage.removeItem('resusrtkn');

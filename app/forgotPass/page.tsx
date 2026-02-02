@@ -9,6 +9,7 @@ import Image from 'next/image';
 import logo from '@/public/images/logo/logoName.png';
 import Link from 'next/link';
 import { uriAuth } from '@/public/apiuri/uri';
+import { toast } from 'sonner';
 
 export default function ForgotPassPage() {
     const [email, setEmail] = useState('');
@@ -21,13 +22,24 @@ export default function ForgotPassPage() {
         if (email === REemail) {
             setLoading(true);
             setNotMatch(false);
-            await fetch(`${uriAuth}/forgot-password`, {
+            const response = await fetch(`${uriAuth}/forgot-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ email }),
             });
-            
+            const responseData = await response.json();
+            if (response?.status === 429) {
+                setDone(false);
+                setLoading(false);
+                return toast("Warning!", {
+                    style: {
+                        color: "#f43f5e"
+                    },
+                    description: responseData.message,
+                    richColors: true,
+                });
+            }
             setDone(true);
             setLoading(false);
         } else {

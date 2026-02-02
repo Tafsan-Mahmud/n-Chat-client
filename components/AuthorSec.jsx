@@ -56,7 +56,6 @@ const AuthorSec = () => {
         }
     };
 
-
     return (
         <div>
             {/* <h4 className='px-8 py-3 text-xl font-semibold text-blue-800 text-center border-b mb-2'>NChat</h4> */}
