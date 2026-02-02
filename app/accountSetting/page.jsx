@@ -134,10 +134,9 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-slate-100">
-
       {/* Navbar */}
       <div className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 py-1 flex justify-between items-center">
 
           <Link href="/chats">
             <Image alt="logo" src={logo} className="w-28 cursor-pointer" />
@@ -172,14 +171,20 @@ export default function Page() {
           </div>
         </div>
       </div>
+      {/* <div className="max-w-6xl mx-auto px-4 my-5">
+        <h1 className="text-2xl font-bold text-slate-900">Account Settings</h1>
+        <p className="text-slate-500 mt-1">
+          Manage your professional profile and security preferences.
+        </p>
+      </div> */}
 
       {/* Cards */}
-      <div className="max-w-6xl mx-auto px-4 mt-10 flex flex-col lg:flex-row gap-8 pb-12">
 
+      <div className="max-w-6xl mx-auto px-4 mt-15 flex flex-col lg:flex-row gap-8 pb-12">
         {/* PERSONAL */}
         <div className="bg-white rounded-xl border w-full max-w-lg flex flex-col">
 
-          <div className="flex items-center gap-3 px-6 py-4 border-b">
+          <div className="flex items-center gap-3 px-6 py-3 border-b">
             <div className="w-[3px] h-5 bg-blue-800 rounded"></div>
             <h3 className="font-semibold text-lg">Personal Information</h3>
           </div>
@@ -187,7 +192,7 @@ export default function Page() {
           <div className="p-6 flex flex-col flex-1">
 
             {/* IMAGE UPLOAD */}
-            <div className="flex flex-col items-center mb-6 gap-4">
+            <div className="flex flex-col items-center mb-5 gap-4">
 
               <label htmlFor="file-input" className="relative group cursor-pointer">
                 <div className="relative w-24 h-24 rounded-full overflow-hidden border ">
@@ -276,7 +281,7 @@ export default function Page() {
         {/* PASSWORD */}
         <div className="bg-white rounded-xl border w-full max-w-lg flex flex-col">
 
-          <div className="flex items-center gap-3 px-6 py-4 border-b">
+          <div className="flex items-center gap-3 px-6 py-3 border-b">
             <div className="w-[3px] h-5 bg-blue-800 rounded"></div>
             <h3 className="font-semibold text-lg">Password & Security</h3>
           </div>
