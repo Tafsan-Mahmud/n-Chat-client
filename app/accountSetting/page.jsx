@@ -1,25 +1,38 @@
 'use client'
 
-import { ChevronLeft, Camera, CloudUpload, Loader2Icon, Eye, EyeOff } from 'lucide-react'
-import React, { useState, useCallback, use, useEffect } from 'react'
+import { ChevronLeft, Camera, CloudUpload, Loader2Icon, Eye, EyeOff, Check, ChevronsUpDown } from 'lucide-react'
+import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAppSelector } from "@/store"
 import { motion } from "framer-motion"
-
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import logo from '../../public/images/logo/logoName.png'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-const im = 'https://yt3.ggpht.com/Way4TqSlkTcuLw9q6Q9lth3NKNt6-tEl5rWMbxiyUrbnJAYuST48TQAio_8JmWHmyXmMFcBt=s88-c-k-c0x00ffffff-no-rj'
+import { cn } from '@/lib/utils'
 
 export default function Page() {
 
   const user = useAppSelector((s) => s.user?.data)
 
-
+  const [value, setValue] = useState("");
+  const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null)
   const [preview, setPreview] = useState('')
   const [topBarImage, setTopBarImage] = useState('')
@@ -33,16 +46,53 @@ export default function Page() {
     new: false,
     confirm: false
   })
-
-  const [personalData, setPersonalData] = useState({
+  const [personalError, setPersonalError] = useState({
     name: "",
     title: "",
     bio: ""
   })
+  const [personalData, setPersonalData] = useState({
+    name: "",
+    title: "",
+    bio: ""
+  });
+
+  const title = [
+    {
+      value: "Software Engineer",
+      label: "Software Engineer",
+    },
+    {
+      value: "Technician",
+      label: "Technician",
+    },
+    {
+      value: "Student",
+      label: "Student",
+    },
+    {
+      value: "Founder",
+      label: "Founder",
+    },
+    {
+      value: "Founder & CEO",
+      label: "Founder & CEO",
+    },
+
+    {
+      value: "Marketing HR",
+      label: "Marketing HR",
+    },
+    {
+      value: "Teacher",
+      label: "Teacher",
+    },
+  ]
 
   useEffect(() => {
     if (user) {
       setPreview(user.profile_image);
+      setValue(user.title)
       setTopBarImage(user.profile_image);
       setPersonalData({
         name: user.name || "",
@@ -50,12 +100,13 @@ export default function Page() {
         bio: user.bio || ""
       })
     }
-  }, [user])
+  }, [user]);
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: ""
-  })
+  });
 
   const [passwordError, setPasswordError] = useState("")
 
@@ -64,15 +115,20 @@ export default function Page() {
     upper: /[A-Z]/.test(passwordData.newPassword),
     number: /[0-9]/.test(passwordData.newPassword),
     special: /[^A-Za-z0-9]/.test(passwordData.newPassword)
-  }
+  };
 
   const isPasswordEmpty = !passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword;
 
   const handlePersonalChange = useCallback((e) => {
     const { id, value } = e.target
     setPersonalData(prev => ({ ...prev, [id]: value }))
+    setPersonalError(prev => ({ ...prev, [id]: "" }))
   }, [])
 
+  const handleTitleSelect = (newTitleValue) => {
+    setPersonalData(prev => ({ ...prev, title: newTitleValue }));
+    setPersonalError(prev => ({ ...prev, title: "" }));
+  };
   const handlePasswordChange = useCallback((e) => {
     const { id, value } = e.target
     setPasswordData(prev => ({ ...prev, [id]: value }))
@@ -86,12 +142,12 @@ export default function Page() {
 
     if (!allowed.includes(file.type)) {
       setImageError("Only JPG, JPEG, PNG files allowed")
-      return
+      return;
     }
 
-    setImageError("")
-    setSelectedFile(file)
-    setPreview(URL.createObjectURL(file))
+    setImageError("");
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
   }
 
   const isPersonalChanged =
@@ -101,7 +157,34 @@ export default function Page() {
     selectedFile !== null
 
   const handlePersonalSubmit = async () => {
-    if (!isPersonalChanged) return
+
+    let errors = {
+      name: "",
+      title: "",
+      bio: ""
+    }
+
+    let hasError = false
+
+    if (!personalData.name.trim()) {
+      errors.name = "Name is required"
+      hasError = true
+    }
+
+    if (!personalData.title.trim()) {
+      errors.title = "Title is required"
+      hasError = true
+    }
+
+    if (!personalData.bio.trim()) {
+      errors.bio = "Bio is required"
+      hasError = true
+    }
+
+    setPersonalError(errors)
+
+    if (hasError) return
+
     setIsPersonalLoading(true)
     await new Promise(res => setTimeout(res, 1500))
     setIsPersonalLoading(false)
@@ -112,20 +195,20 @@ export default function Page() {
     if (!passwordData.currentPassword ||
       !passwordData.newPassword ||
       !passwordData.confirmPassword) {
+
       setPasswordError("All password fields are required.")
-      return
+      return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setPasswordError("New password and confirm password do not match.")
-      return
+      return;
     }
 
     if (!checks.length || !checks.upper || !checks.number || !checks.special) {
       setPasswordError("Password is too weak, please enter strong password!")
-      return
+      return;
     }
-
     setPasswordError("")
     setIsPasswordLoading(true)
     await new Promise(res => setTimeout(res, 1500))
@@ -133,26 +216,29 @@ export default function Page() {
   }
 
   return (
+
     <div className="min-h-screen bg-slate-100">
+
       {/* Navbar */}
+
       <div className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-1 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-4 py-1 flex flex-wrap gap-3 justify-between items-center">
 
           <Link href="/chats">
             <Image alt="logo" src={logo} className="w-28 cursor-pointer" />
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap justify-end">
 
             <Link
               href="/chats"
-              className="flex items-center gap-2 text-sm text-blue-800 font-medium bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-md"
+              className="flex items-center gap-2 text-sm text-blue-800 font-medium bg-blue-100 hover:bg-blue-200 px-3 py-2 rounded-md whitespace-nowrap"
             >
               <ChevronLeft className="w-4 h-4" />
               Back to Chats
             </Link>
 
-            <div className="w-12 h-12 relative">
+            <div className="w-12 h-12 relative shrink-0">
               {!imgLoaded && (
                 <Skeleton className="absolute inset-0 rounded-full bg-slate-200" />
               )}
@@ -171,17 +257,13 @@ export default function Page() {
           </div>
         </div>
       </div>
-      {/* <div className="max-w-6xl mx-auto px-4 my-5">
-        <h1 className="text-2xl font-bold text-slate-900">Account Settings</h1>
-        <p className="text-slate-500 mt-1">
-          Manage your professional profile and security preferences.
-        </p>
-      </div> */}
 
-      {/* Cards */}
+      {/* Cards Container */}
 
-      <div className="max-w-6xl mx-auto px-4 mt-15 flex flex-col lg:flex-row gap-8 pb-12">
+      <div className="max-w-6xl mx-auto px-4 mt-6 flex flex-col lg:flex-row items-center lg:items-stretch justify-center lg:justify-around gap-8 pb-8">
+
         {/* PERSONAL */}
+
         <div className="bg-white rounded-xl border w-full max-w-lg flex flex-col">
 
           <div className="flex items-center gap-3 px-6 py-3 border-b">
@@ -189,14 +271,14 @@ export default function Page() {
             <h3 className="font-semibold text-lg">Personal Information</h3>
           </div>
 
-          <div className="p-6 flex flex-col flex-1">
+          <div className="p-5 pt-3 flex flex-col flex-1">
 
             {/* IMAGE UPLOAD */}
-            <div className="flex flex-col items-center mb-5 gap-4">
+            <div className="flex flex-col items-center mb-4.5 gap-2.5">
 
               <label htmlFor="file-input" className="relative group cursor-pointer">
-                <div className="relative w-24 h-24 rounded-full overflow-hidden border ">
-                  {!preview ? (
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border">
+                  {!imgLoaded ? (
                     <Skeleton className="w-full h-full rounded-full bg-slate-200" />
                   ) : (
                     <Image
@@ -212,68 +294,126 @@ export default function Page() {
                 </div>
               </label>
 
-              <label htmlFor="file-input" className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 cursor-pointer transition hover:bg-blue-200 font-medium text-sm">
+              {
+                imgLoaded ? <label
+                htmlFor="file-input"
+                className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 cursor-pointer transition hover:bg-blue-200 font-medium text-sm"
+              >
                 <CloudUpload className="w-5 h-5 group-hover:-translate-y-1 transition" />
                 Change photo
-              </label>
+              </label> : <Skeleton className="w-35 h-8 bg-slate-200" />
+              }
 
               {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
 
               <input id="file-input" type="file" className="hidden" onChange={handleFileChange} />
             </div>
             {
-              personalData.bio ?
+              topBarImage ? (
                 <div>
                   <Label>Name</Label>
                   <Input
                     id="name"
                     placeholder="Your full name"
                     value={personalData.name}
-                    onChange={handlePersonalChange} className="mb-4 mt-2" />
+                    onChange={handlePersonalChange}
+                    className="mb-1 mt-2"
+                  />
+                  {personalError.name && (
+                    <p className="text-red-500 text-sm mb-2">{personalError.name}</p>
+                  )}
 
-                  <Label>Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="Your title"
-                    value={personalData.title}
-                    onChange={handlePersonalChange} className="mb-4 mt-2" />
-
-                  <Label>Bio</Label>
+                  <Label className='mt-3'>Title / Occupation</Label>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className='w-full font-normal mt-2 justify-between'>
+                        {value
+                          ? title.find((title) => title.value === value)?.label
+                          : <span className='text-gray-400'>Select your title / Occupation...</span>}
+                        <ChevronsUpDown className="opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command>
+                        <CommandInput placeholder="Search title / Occupation...." className="h-9" />
+                        <CommandList className="max-h-[300px] overflow-y-auto">
+                          <CommandEmpty>No title / Occupation. found.</CommandEmpty>
+                          <CommandGroup>
+                            {title.map((data) => (
+                              <CommandItem
+                                key={data.value}
+                                value={data.value}
+                                onSelect={(currentValue) => {
+                                  const newValue = currentValue;
+                                  setValue(currentValue);
+                                  handleTitleSelect(currentValue);
+                                  setOpen(false);
+                                }}
+                              >
+                                {data.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    value === data.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {personalError.title && (
+                    <p className="text-red-500 text-sm mt-1">{personalError.title}</p>
+                  )}
+                  <Label className='mt-3'>Bio</Label>
                   <Textarea
                     id="bio"
                     placeholder="Write a short bio..."
                     value={personalData.bio}
                     onChange={handlePersonalChange}
-                    className="mb-6 mt-2" />
-                </div> :
+                    className="mt-2"
+                  />
+                  {personalError.bio && (
+                    <p className="text-red-500 text-sm mt-1 mb-2">{personalError.bio}</p>
+                  )}
+                  <div className="mt-auto">
+                    <Button
+                      disabled={!isPersonalChanged || isPersonalLoading}
+                      onClick={handlePersonalSubmit}
+                      className="w-full mt-3 bg-blue-800 hover:bg-blue-900"
+                    >
+                      {isPersonalLoading ? (
+                        <>
+                          <Loader2Icon className="animate-spin mr-2" />
+                          Please wait...
+                        </>
+                      ) : "Save Changes"}
+                    </Button>
+                  </div>
+                </div>
+
+              ) : (
                 <>
-                  {/* Name */}
-                  <Skeleton className="h-4 w-25 mb-2 rounded-sm" />
+                  <Skeleton className="h-4 w-24 mb-2 rounded-sm" />
                   <Skeleton className="h-9 w-full mb-4 rounded-sm" />
 
-                  {/* Title */}
                   <Skeleton className="h-4 w-20 mb-2 rounded-sm" />
                   <Skeleton className="h-9 w-full mb-4" />
 
-                  {/* Bio */}
-                  <Skeleton className="h-4 w-15 mb-2 rounded-sm" />
-                  <Skeleton className="h-24 w-full mb-6" />
+                  <Skeleton className="h-4 w-16 mb-2 rounded-sm" />
+                  <Skeleton className="h-20 w-full mb-5" />
+
+                  <Skeleton className="h-9 w-full mb-" />
                 </>
-            }
-            <div className="mt-auto">
-              <Button
-                disabled={!isPersonalChanged || isPersonalLoading}
-                onClick={handlePersonalSubmit}
-                className="w-full bg-blue-800 hover:bg-blue-900"
-              >
-                {isPersonalLoading ? (
-                  <>
-                    <Loader2Icon className="animate-spin mr-2" />
-                    Please wait...
-                  </>
-                ) : "Save Changes"}
-              </Button>
-            </div>
+              )}
+
+
 
           </div>
         </div>
@@ -285,11 +425,11 @@ export default function Page() {
             <div className="w-[3px] h-5 bg-blue-800 rounded"></div>
             <h3 className="font-semibold text-lg">Password & Security</h3>
           </div>
-          <div className="p-6 flex flex-col flex-1">
 
-            {/* CURRENT PASSWORD */}
+          <div className="p-5 pt-4 flex flex-col flex-1">
+
             <Label>Current Password</Label>
-            <div className="relative mt-2 mb-4">
+            <div className="relative mb-3 mt-1.5">
               <Input
                 id="currentPassword"
                 placeholder="Enter current password"
@@ -306,9 +446,8 @@ export default function Page() {
               </button>
             </div>
 
-            {/* NEW PASSWORD */}
             <Label>New Password</Label>
-            <div className="relative mt-2">
+            <div className="relative mb-3 mt-1.5">
               <Input
                 id="newPassword"
                 placeholder="Enter new password"
@@ -325,16 +464,15 @@ export default function Page() {
               </button>
             </div>
 
-            <motion.ul className="text-sm mb-4 mt-2 space-y-1">
+            <motion.ul className="text-sm mb-5 ml-2 space-y-1">
               <li className={checks.length ? "text-green-600" : "text-slate-400"}>• 8+ characters</li>
               <li className={checks.upper ? "text-green-600" : "text-slate-400"}>• Uppercase letter</li>
               <li className={checks.number ? "text-green-600" : "text-slate-400"}>• Number</li>
               <li className={checks.special ? "text-green-600" : "text-slate-400"}>• Special character</li>
             </motion.ul>
 
-            {/* CONFIRM PASSWORD */}
             <Label>Confirm Password</Label>
-            <div className="relative mt-2 mb-3">
+            <div className="relative mb-3 mt-1.5">
               <Input
                 id="confirmPassword"
                 placeholder="Confirm new password"
@@ -357,7 +495,7 @@ export default function Page() {
               <Button
                 disabled={isPasswordEmpty || isPasswordLoading}
                 onClick={handlePasswordSubmit}
-                className="w-full bg-blue-800 hover:bg-blue-900"
+                className="w-full mt-3 bg-blue-800 hover:bg-blue-900"
               >
                 {isPasswordLoading ? (
                   <>
@@ -369,10 +507,10 @@ export default function Page() {
             </div>
 
           </div>
-
         </div>
 
       </div>
     </div>
+
   )
 }
