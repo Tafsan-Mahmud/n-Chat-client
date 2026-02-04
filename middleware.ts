@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
   const otpPending = request.cookies.get('otp_pending')?.value;
   const pathname = request.nextUrl.pathname;
+
   const validationUrl = `${uriAuth}/validate-token`;
 
   const isProtected = PROTECTED_ROUTES.some(route =>
@@ -75,6 +76,7 @@ export async function middleware(request: NextRequest) {
     try {
       const response = await fetch(validationUrl, {
         headers: { Cookie: `token=${token}` },
+        cache: "no-store",
       });
 
       //  invalid / expired / forged token
@@ -83,6 +85,7 @@ export async function middleware(request: NextRequest) {
         url.pathname = '/signin';
         const res = NextResponse.redirect(url);
         res.cookies.delete('token'); //  cleanup bad cookie
+        res.cookies.delete('hasSession'); //  cleanup bad cookie
         return res;
       }
 
@@ -129,10 +132,12 @@ export async function middleware(request: NextRequest) {
       //  bad token on auth routes → clean it
       const res = NextResponse.next();
       res.cookies.delete('token');
+      res.cookies.delete('hasSession');
       return res;
     } catch {
       const res = NextResponse.next();
       res.cookies.delete('token');
+      res.cookies.delete('hasSession');
       return res;
     }
   }

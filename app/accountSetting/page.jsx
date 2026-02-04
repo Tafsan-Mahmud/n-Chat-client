@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronLeft, Camera, CloudUpload, Loader2Icon, Eye, EyeOff, Check, ChevronsUpDown } from 'lucide-react'
+import { ChevronLeft, Camera, CloudUpload, Loader2Icon, Eye, EyeOff, Check, ChevronsUpDown, Loader2 } from 'lucide-react'
 import React, { useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -26,11 +26,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { uriAuth } from '@/public/apiuri/uri'
+import { useRouter } from 'next/navigation'
+import { passwordChange } from '@/apis/userActions/accountPassword'
 
 export default function Page() {
 
   const user = useAppSelector((s) => s.user?.data)
-
+  const router = useRouter();
   const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null)
@@ -40,6 +44,7 @@ export default function Page() {
   const [imgLoaded, setImgLoaded] = useState(false)
   const [isPersonalLoading, setIsPersonalLoading] = useState(false)
   const [isPasswordLoading, setIsPasswordLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const [show, setShow] = useState({
     current: false,
@@ -100,6 +105,7 @@ export default function Page() {
         bio: user.bio || ""
       })
     }
+
   }, [user]);
 
   const [passwordData, setPasswordData] = useState({
@@ -209,11 +215,100 @@ export default function Page() {
       setPasswordError("Password is too weak, please enter strong password!")
       return;
     }
-    setPasswordError("")
-    setIsPasswordLoading(true)
-    await new Promise(res => setTimeout(res, 1500))
-    setIsPasswordLoading(false)
-  }
+
+    setPasswordError("");
+    setIsPasswordLoading(true);
+
+    try {
+      const data ={
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      }
+
+      const res = await passwordChange(data);
+
+      if (res?.status === 429) {
+        return toast("Warning!", {
+          style: {
+            color: "#f43f5e"
+          },
+          description: res.message,
+          richColors: true,
+        });
+      }
+      if (!res.success) {
+        toast("Warning!", {
+          style: { color: "#f43f5e" },
+          description: res.message,
+          richColors: true,
+        });
+        return;
+      }
+      toast("Success!", {
+        style: { color: "#16a34a" },
+        description: res.message,
+        richColors: true,
+      });
+      router.push('/signin');
+
+    } catch (err) {
+
+      toast("Error!", {
+        style: { color: "#f43f5e" },
+        description: err?.message || "Something went wrong. Try again.",
+        richColors: true,
+      });
+
+    } finally {
+      setIsPasswordLoading(false);
+    }
+  };
+
+
+  const handleForgotClick = async () => {
+    if (loading) return; // prevent spam
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${uriAuth}/forgot-password/init`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      const responseData = await res.json();
+
+      if (res?.status === 429) {
+        setLoading(false);
+        return toast("Warning!", {
+          style: {
+            color: "#f43f5e"
+          },
+          description: responseData.message,
+          richColors: true,
+        });
+      }
+      if (!res.ok) {
+        toast('ERROR!', {
+          style: { color: "#f43f5e" },
+          description: 'Something went wrong! Try again later…',
+          richColors: true,
+        });
+
+        setLoading(false);
+        return;
+      }
+
+      router.push('/forgotPass');
+
+    } catch (err) {
+      toast('SERVER OFFLINE', {
+        style: { color: "#f43f5e" },
+        description: 'Cannot connect to server. Please try again later.',
+        richColors: true,
+      });
+
+      setLoading(false);
+    }
+  };
 
   return (
 
@@ -296,12 +391,12 @@ export default function Page() {
 
               {
                 imgLoaded ? <label
-                htmlFor="file-input"
-                className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 cursor-pointer transition hover:bg-blue-200 font-medium text-sm"
-              >
-                <CloudUpload className="w-5 h-5 group-hover:-translate-y-1 transition" />
-                Change photo
-              </label> : <Skeleton className="w-35 h-8 bg-slate-200" />
+                  htmlFor="file-input"
+                  className="group flex items-center gap-2 px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 cursor-pointer transition hover:bg-blue-200 font-medium text-sm"
+                >
+                  <CloudUpload className="w-5 h-5 group-hover:-translate-y-1 transition" />
+                  Change photo
+                </label> : <Skeleton className="w-35 h-8 bg-slate-200" />
               }
 
               {imageError && <p className="text-red-500 text-sm">{imageError}</p>}
@@ -352,8 +447,7 @@ export default function Page() {
                                   setValue(currentValue);
                                   handleTitleSelect(currentValue);
                                   setOpen(false);
-                                }}
-                              >
+                                }}>
                                 {data.label}
                                 <Check
                                   className={cn(
@@ -397,7 +491,6 @@ export default function Page() {
                     </Button>
                   </div>
                 </div>
-
               ) : (
                 <>
                   <Skeleton className="h-4 w-24 mb-2 rounded-sm" />
@@ -412,9 +505,6 @@ export default function Page() {
                   <Skeleton className="h-9 w-full mb-" />
                 </>
               )}
-
-
-
           </div>
         </div>
 
@@ -488,9 +578,15 @@ export default function Page() {
                 {show.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-
             {passwordError && <p className="text-red-500 text-sm mb-4">{passwordError}</p>}
-
+            <div className="flex justify-end">
+              <span
+                onClick={handleForgotClick}
+                className={`text-sm underline-offset-4 flex items-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:underline cursor-pointer'} `} >
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Forgot your password...' : 'Forgot your password?'}
+              </span>
+            </div>
             <div className="mt-auto">
               <Button
                 disabled={isPasswordEmpty || isPasswordLoading}

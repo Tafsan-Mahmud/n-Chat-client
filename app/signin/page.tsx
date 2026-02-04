@@ -23,6 +23,7 @@ import { toast } from "sonner"
 import { uriAuth } from "@/public/apiuri/uri"
 
 export default function Login() {
+
     const router = useRouter();
     const [showPass, setShowPass] = useState(false);
     const [isClicked, setIsClicked] = useState(false);
@@ -91,9 +92,7 @@ export default function Login() {
     // forgot Password route Allowness
     const handleForgotClick = async () => {
         if (loading) return; // prevent spam
-
         setLoading(true);
-
         try {
             const res = await fetch(`${uriAuth}/forgot-password/init`, {
                 method: 'POST',
@@ -122,20 +121,16 @@ export default function Login() {
                 setLoading(false);
                 return;
             }
-
             router.push('/forgotPass');
-
         } catch (err) {
             toast('SERVER OFFLINE', {
                 style: { color: "#f43f5e" },
                 description: 'Cannot connect to server. Please try again later.',
                 richColors: true,
             });
-
             setLoading(false);
         }
     };
-
 
 
     return (
